@@ -1,0 +1,3 @@
+genaifsc: genaifss
+CanonicalExample: Canonical
+genaifsc_2: genaifss_2

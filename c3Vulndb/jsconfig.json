@@ -1,0 +1,34 @@
+{
+  "compilerOptions": {
+    "target": "ES6",
+    "lib": [
+      "ES2015"
+    ],
+    "checkJs": false,
+    "strictNullChecks": true
+  },
+  "typeAcquisition": {
+    "include": [
+      "jasmine",
+      "lodash"
+    ]
+  },
+  "include": [
+    "./src/**/*.js",
+    "./test/**/*.js",
+    "./gen/cache/TypeMetaDeps#dts/*.d.ts",
+    "/Users/joshnathanson/c3/c3genesis/.vs-cache/platform/gen/cache/TypeMetaDeps#dts/*.d.ts",
+    "/Users/joshnathanson/c3/c3genesis/.vs-cache/mcpServer/gen/cache/TypeMetaDeps#dts/*.d.ts",
+    "/Users/joshnathanson/c3/c3genesis/repo/genaiPlatform/gen/cache/TypeMetaDeps#dts/*.d.ts",
+    "/Users/joshnathanson/c3/c3genesis/repo/observability/gen/cache/TypeMetaDeps#dts/*.d.ts",
+    "/Users/joshnathanson/c3/c3genesis/.vs-cache/baseToolkit/gen/cache/TypeMetaDeps#dts/*.d.ts",
+    "/Users/joshnathanson/c3/c3genesis/.vs-cache/jarvisBaseToolkit/gen/cache/TypeMetaDeps#dts/*.d.ts",
+    "/Users/joshnathanson/c3/c3genesis/.vs-cache/baseCustomizationAnalyzer/gen/cache/TypeMetaDeps#dts/*.d.ts",
+    "/Users/joshnathanson/c3/c3genesis/.vs-cache/baseCodeAnalyzer/gen/cache/TypeMetaDeps#dts/*.d.ts",
+    "/Users/joshnathanson/c3/c3genesis/.vs-cache/docgen/gen/cache/TypeMetaDeps#dts/*.d.ts",
+    "/Users/joshnathanson/c3/c3genesis/.vs-cache/testtools/gen/cache/TypeMetaDeps#dts/*.d.ts",
+    "/Users/joshnathanson/c3/c3genesis/.vs-cache/jarvis/gen/cache/TypeMetaDeps#dts/*.d.ts",
+    "/Users/joshnathanson/c3/c3genesis/.vs-cache/documentationCompiler/gen/cache/TypeMetaDeps#dts/*.d.ts",
+    "/Users/joshnathanson/c3/c3genesis/.vs-cache/baseCanonicalTester/gen/cache/TypeMetaDeps#dts/*.d.ts"
+  ]
+}

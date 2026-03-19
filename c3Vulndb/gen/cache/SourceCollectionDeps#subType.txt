@@ -1,0 +1,3 @@
+genaifsc: FileSourceCollection
+CanonicalExample: FileSourceCollection
+genaifsc_2: FileSourceCollection

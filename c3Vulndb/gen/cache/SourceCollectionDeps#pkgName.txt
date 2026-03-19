@@ -1,0 +1,3 @@
+genaifsc: genaiPlatform
+CanonicalExample: baseCanonicalTester
+genaifsc_2: genaiPlatform

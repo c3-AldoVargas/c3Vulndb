@@ -1,0 +1,27 @@
+{
+    "workbench.view.alwaysShowHeaderActions": true,
+    "search.exclude": {
+        "**/node_modules": true,
+        "**/bower_components": true,
+        "**/*.code-search": true,
+        "**/gen/cache/**": true,
+        ".vscode/**": true,
+        "**/.fingerprints.txt": true
+    },
+    "search.useIgnoreFiles": false,
+    "files.watcherExclude": {
+        "**/.git/objects/**": true,
+        "**/.git/subtree-cache/**": true,
+        "**/.hg/store/**": true,
+        "**/.git/**": true,
+        "**/.DS_Store": true,
+        "**/.fingerprints.txt": true,
+        "**/.vscode/**": true,
+        "**/.vs-cache/**": true,
+        "**/gen/cache/*.txt": true,
+        "**/gen/cache/TypeMetaDeps*": true,
+        "**/gen/cache/TypeMetaDeps*/**": true
+    },
+    "editor.acceptSuggestionOnCommitCharacter": false,
+    "debug.saveBeforeStart": "nonUntitledEditorsInActiveGroup"
+}
