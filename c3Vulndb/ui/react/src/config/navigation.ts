@@ -7,8 +7,8 @@
  * This material may be covered by one or more patents or pending patent applications.
  */
 
-import { faHouse as faHouseRegular } from '@fortawesome/pro-regular-svg-icons';
-import { faHouse as faHouseSolid } from '@fortawesome/pro-solid-svg-icons';
+import { faShieldHalved as faShieldRegular } from '@fortawesome/free-solid-svg-icons';
+import { faShieldHalved as faShieldSolid } from '@fortawesome/free-solid-svg-icons';
 import { IconProp } from '@fortawesome/fontawesome-svg-core';
 import { NavigationItem } from '@/types/navigation';
 
@@ -21,22 +21,13 @@ import { NavigationItem } from '@/types/navigation';
  */
 export const navigationConfig: NavigationItem[] = [
   {
-    id: 'demo',
+    id: 'vulndb',
     path: '/',
-    icon: faHouseRegular as IconProp,
-    iconActive: faHouseSolid as IconProp,
-    label: 'Demo',
-    tooltip: 'Dashboard Overview',
+    icon: faShieldRegular as IconProp,
+    iconActive: faShieldSolid as IconProp,
+    label: 'Vuln DB',
+    tooltip: 'Vulnerability Database Dashboard',
   },
-  // Example new navigation item - delete this comment and the lines below to add a new navigation item
-  // {
-  //   id: 'analytics',
-  //   path: '/analytics',
-  //   icon: faChartBarRegular,
-  //   iconActive: faChartBarSolid,
-  //   label: 'Analytics',
-  //   tooltip: 'View Analytics & Reports'
-  // },
 ];
 
 /**

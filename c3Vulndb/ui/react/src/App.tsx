@@ -8,9 +8,10 @@
  */
 
 import React from 'react';
-import { Routes } from 'react-router-dom'; // Add Route when adding a new page
+import { Routes, Route } from 'react-router-dom';
 import SideNav from './components/SideNav/SideNav';
 import ErrorReporterProvider from './components/ErrorBoundary/ErrorBoundary';
+import VulnDashboard from './pages/VulnDashboard/VulnDashboard';
 
 if (import.meta.env.MODE === 'development') {
   const authToken = import.meta.env.VITE_C3_AUTH_TOKEN;
@@ -24,7 +25,9 @@ export default function App() {
         <SideNav />
         <div className="flex-1 flex flex-col min-w-0">
           <main className="flex-1 overflow-auto">
-            <Routes>{/* <Route path="/" element={<DemoPage />} /> */}</Routes>
+            <Routes>
+              <Route path="/" element={<VulnDashboard />} />
+            </Routes>
           </main>
         </div>
       </div>

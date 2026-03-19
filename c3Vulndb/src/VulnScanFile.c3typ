@@ -1,0 +1,56 @@
+/**
+ * Represents a vulnerability scan file ingested into the system.
+ */
+entity type VulnScanFile {
+
+  /**
+   * The name of the file, e.g., "new_8.9.1_66_cve_knowledgebase.json".
+   */
+  fileName: !string
+
+  /**
+   * Parsed release identifier, e.g., "8.9.1_66".
+   */
+  release: string
+
+  /**
+   * Parsed scan type, e.g., "new", "existing", "hc".
+   */
+  scanType: string
+
+  /**
+   * The date when the file was ingested.
+   */
+  scanDate: datetime
+
+  /**
+   * Total number of vulnerabilities in this file.
+   */
+  vulnCount: int
+
+  /**
+   * Returns all scan files ordered by scanDate descending.
+   *
+   * @return [VulnScanFile] - List of VulnScanFile instances sorted by scanDate.
+   */
+  getAvailableFiles: function(): [VulnScanFile] js
+
+  /**
+   * Loads a JSON vulnerability knowledgebase file into the system.
+   * Parses the file name for release and scan type, creates the VulnScanFile record,
+   * and creates Vulnerability records for each entry. Deduplicates by vulnId within the file.
+   *
+   * @param fileName The original file name, e.g. "new_8.9.1_66_cve_knowledgebase.json".
+   * @param jsonData The parsed JSON array of vulnerability entries.
+   * @return VulnScanFile The created scan file record.
+   */
+  loadJsonData: function(fileName: string, jsonData: [json]): VulnScanFile js
+
+  /**
+   * Deletes a scan file and all its associated vulnerability records.
+   *
+   * @param scanFileId The ID of the scan file to delete.
+   * @return boolean True if the deletion was successful.
+   */
+  deleteScanFile: function(scanFileId: string): boolean js
+}

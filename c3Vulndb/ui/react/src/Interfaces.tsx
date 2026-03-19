@@ -29,3 +29,46 @@ export interface SnackbarMessage {
   severity?: 'success' | 'info' | 'warning' | 'error';
   error?: boolean;
 }
+
+export interface VulnScanFile {
+  id: string;
+  name: string;
+  fileName: string;
+  release: string;
+  scanType: string;
+  scanDate: string;
+  vulnCount: number;
+}
+
+export interface Vulnerability {
+  id: string;
+  vulnId: string;
+  path: string;
+  trigger: string;
+  message: string;
+  repository: string;
+  tag: string;
+  image: string;
+  messageSeverity: string;
+  hasFix: string;
+  externalCvssVector: string;
+  classifications: string;
+  c3AiCvss4Vector: string;
+  c3AiSeverityRating: string;
+  c3AiResponse: string;
+  vulnComments: string;
+  scanFile: VulnScanFile;
+}
+
+export interface SeveritySummary {
+  Critical: number;
+  High: number;
+  Medium: number;
+  Low: number;
+  total: number;
+}
+
+export interface NewCveResult {
+  newCount: number;
+  newCveIds: string[];
+}
