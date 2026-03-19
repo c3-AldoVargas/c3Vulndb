@@ -191,6 +191,7 @@ export default function VulnDashboard() {
   const [uploadModalOpen, setUploadModalOpen] = useState<boolean>(false);
   const [uploadFile, setUploadFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState<boolean>(false);
+  const [uploadProgress, setUploadProgress] = useState<{ loaded: number; total: number } | null>(null);
   const [uploadResult, setUploadResult] = useState<{ success: boolean; message: string } | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -324,19 +325,21 @@ export default function VulnDashboard() {
     setUploadModalOpen(false);
     setUploadFile(null);
     setUploadResult(null);
+    setUploadProgress(null);
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
   };
 
   /**
-   * Perform the file upload — read JSON, send to backend.
+   * Perform the file upload — read JSON, send to backend in chunked batches.
    */
   const handleUpload = useCallback(async () => {
     if (!uploadFile) return;
 
     setUploading(true);
     setUploadResult(null);
+    setUploadProgress(null);
 
     try {
       const text = await uploadFile.text();
@@ -356,7 +359,9 @@ export default function VulnDashboard() {
         return;
       }
 
-      const result = await uploadVulnFile(uploadFile.name, jsonData);
+      const result = await uploadVulnFile(uploadFile.name, jsonData, (loaded, total) => {
+        setUploadProgress({ loaded, total });
+      });
 
       setUploadResult({
         success: true,
@@ -365,11 +370,18 @@ export default function VulnDashboard() {
 
       // Refresh the file list and auto-select the new file
       await loadScanFiles(result.id);
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : 'Upload failed. Please try again.';
+    } catch (err: unknown) {
+      // c3Action throws strings (not Error objects), so handle both cases
+      const msg =
+        typeof err === 'string'
+          ? err
+          : err instanceof Error
+            ? err.message
+            : 'Upload failed. Please try again.';
       setUploadResult({ success: false, message: msg });
     } finally {
       setUploading(false);
+      setUploadProgress(null);
     }
   }, [uploadFile, loadScanFiles]);
 
@@ -707,6 +719,27 @@ export default function VulnDashboard() {
                 onChange={handleFileInputChange}
               />
             </div>
+
+            {/* Upload progress bar */}
+            {uploading && uploadProgress && (
+              <div className="mt-4">
+                <div className="flex justify-between text-xs text-secondary mb-1">
+                  <span>
+                    Uploading batch {Math.ceil(uploadProgress.loaded / 200)} of{' '}
+                    {Math.ceil(uploadProgress.total / 200)}
+                  </span>
+                  <span>
+                    {uploadProgress.loaded} / {uploadProgress.total} entries
+                  </span>
+                </div>
+                <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div
+                    className="bg-accent h-2 rounded-full transition-all"
+                    style={{ width: `${(uploadProgress.loaded / uploadProgress.total) * 100}%` }}
+                  />
+                </div>
+              </div>
+            )}
 
             {/* Upload result message */}
             {uploadResult && (

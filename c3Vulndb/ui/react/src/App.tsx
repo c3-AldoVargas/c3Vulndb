@@ -12,6 +12,7 @@ import { Routes, Route } from 'react-router-dom';
 import SideNav from './components/SideNav/SideNav';
 import ErrorReporterProvider from './components/ErrorBoundary/ErrorBoundary';
 import VulnDashboard from './pages/VulnDashboard/VulnDashboard';
+import CustomerScanValidation from './pages/CustomerScanValidation/CustomerScanValidation';
 
 if (import.meta.env.MODE === 'development') {
   const authToken = import.meta.env.VITE_C3_AUTH_TOKEN;
@@ -27,6 +28,7 @@ export default function App() {
           <main className="flex-1 overflow-auto">
             <Routes>
               <Route path="/" element={<VulnDashboard />} />
+              <Route path="/scan-validation" element={<CustomerScanValidation />} />
             </Routes>
           </main>
         </div>

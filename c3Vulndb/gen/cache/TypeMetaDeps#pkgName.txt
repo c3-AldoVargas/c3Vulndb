@@ -1,2 +1,3 @@
 VulnScanFile: c3Vulndb
 Vulnerability: c3Vulndb
+CustomerScanResult: c3Vulndb

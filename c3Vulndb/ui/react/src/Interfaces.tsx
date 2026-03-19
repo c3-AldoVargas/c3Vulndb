@@ -72,3 +72,60 @@ export interface NewCveResult {
   newCount: number;
   newCveIds: string[];
 }
+
+// --- Customer Scan Validation ---
+
+export interface ColumnMapping {
+  sourceColumn: string;
+  targetField: string | null;
+}
+
+export interface CustomerScanRow {
+  vulnId: string;
+  image: string;
+  tag: string;
+  repository: string;
+  messageSeverity: string;
+  path: string;
+  classifications: string;
+  hasFix: string;
+  externalCvssVector: string;
+  message: string;
+}
+
+export interface ValidationMatchResult {
+  vulnId: string;
+  customerSeverity: string;
+  customerImage: string;
+  customerTag: string;
+  customerRepository: string;
+  c3AiSeverityRating: string;
+  c3AiResponse: string;
+  messageSeverity: string;
+  containerMatch: boolean;
+  releases: string[];
+}
+
+export interface ValidationNonMatchResult {
+  vulnId: string;
+  customerSeverity: string;
+  customerImage: string;
+  customerTag: string;
+  customerRepository: string;
+}
+
+export interface ValidationResult {
+  matched: ValidationMatchResult[];
+  nonMatched: ValidationNonMatchResult[];
+}
+
+export interface CustomerScanResult {
+  id: string;
+  vulnId: string;
+  image: string;
+  tag: string;
+  repository: string;
+  messageSeverity: string;
+  scanDate: string;
+  status: string;
+}

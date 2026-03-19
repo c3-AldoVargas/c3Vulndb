@@ -1,2 +1,3 @@
 VulnScanFile: {ImplLanguage.Runtime: [java, py, js], Action.Group: [read, write, delete, data-admin]}
 Vulnerability: {ImplLanguage.Runtime: [java, py, js], Action.Group: [read, write, delete, data-admin]}
+CustomerScanResult: {ImplLanguage.Runtime: [java, py, js], Action.Group: [read, write, delete, data-admin]}

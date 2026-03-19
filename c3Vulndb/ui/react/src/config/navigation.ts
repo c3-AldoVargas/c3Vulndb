@@ -9,6 +9,7 @@
 
 import { faShieldHalved as faShieldRegular } from '@fortawesome/free-solid-svg-icons';
 import { faShieldHalved as faShieldSolid } from '@fortawesome/free-solid-svg-icons';
+import { faClipboardCheck } from '@fortawesome/free-solid-svg-icons';
 import { IconProp } from '@fortawesome/fontawesome-svg-core';
 import { NavigationItem } from '@/types/navigation';
 
@@ -27,6 +28,14 @@ export const navigationConfig: NavigationItem[] = [
     iconActive: faShieldSolid as IconProp,
     label: 'Vuln DB',
     tooltip: 'Vulnerability Database Dashboard',
+  },
+  {
+    id: 'scan-validation',
+    path: '/scan-validation',
+    icon: faClipboardCheck as IconProp,
+    iconActive: faClipboardCheck as IconProp,
+    label: 'Scan Validation',
+    tooltip: 'Customer Scan Validation',
   },
 ];
 

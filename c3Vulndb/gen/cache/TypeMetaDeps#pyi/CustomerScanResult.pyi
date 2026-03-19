@@ -3,8 +3,8 @@ from typing import Callable, Any, Literal, Union, Generic, TypeVar, Optional, ov
 from datetime import datetime
 from c3.platform.FetchSpec import FetchSpec
 from c3.platform.Include import Include
+from c3.platform.FetchResult import FetchResult
 from c3.platform.GenerateDataSpec import GenerateDataSpec
-from c3.platform.ArrayBuilder import ArrayBuilder
 from c3.platform.RefreshMetricsBatchJob import RefreshMetricsBatchJob
 from c3.platform.WithKey import WithKey
 from c3.platform.ActionStats import ActionStats
@@ -14,37 +14,37 @@ from c3.platform.ObjError import ObjError
 from c3.platform.ValueSpec import ValueSpec
 from c3.platform.Data import Data
 from c3.platform.SchemaInfo import SchemaInfo
-from c3.platform.FetchResult import FetchResult
-from c3.platform.ObjList import ObjList
+from c3.platform.PushStream import PushStream
 from c3.platform.RefreshMetricsSpec import RefreshMetricsSpec
 from c3.platform.CheckReferencesResult import CheckReferencesResult
 from c3.platform.GetMissingSpec import GetMissingSpec
+from c3.platform.ObjList import ObjList
 from c3.platform.FetchFilterSpec import FetchFilterSpec
-from c3.platform.SetBuilder import SetBuilder
 from c3.platform.MapType import MapType
-from c3.platform.MapBuilder import MapBuilder
 from c3.platform.RefreshDefaultFieldsSpec import RefreshDefaultFieldsSpec
 from c3.platform.ScanStats import ScanStats
 from c3.platform.RefreshAnalyticsSpec import RefreshAnalyticsSpec
 from c3.platform.ValidatePathResult import ValidatePathResult
+from c3.platform.MapBuilder import MapBuilder
 from c3.platform.ScanArrowSpec import ScanArrowSpec
 from c3.platform.MergeSpec import MergeSpec
 from c3.platform.MergeAllSpec import MergeAllSpec
 from c3.platform.ReferenceType import ReferenceType
 from c3.platform.ExportDataSpec import ExportDataSpec
 from c3.platform.BatchIdsSpec import BatchIdsSpec
+from c3.platform.SetBuilder import SetBuilder
 from c3.platform.ValidateObjSpec import ValidateObjSpec
 from c3.platform.Stream import Stream
+from c3.platform.Promise import Promise
 from c3.platform.RunCreatedOrUpdatedBatchJob import RunCreatedOrUpdatedBatchJob
 from c3.platform.RemoveAllSpec import RemoveAllSpec
-from c3.platform.PushStream import PushStream
 from c3.platform.Transaction import Transaction
 from c3.platform.RefreshBatchJob import RefreshBatchJob
 from c3.platform.Obj.MakeSpec import Obj.MakeSpec
 from c3.platform.BatchFetchSpec import BatchFetchSpec
+from c3.platform.PushStreamWithStats import PushStreamWithStats
 from c3.platform.EvaluateArrowStreamSpec import EvaluateArrowStreamSpec
 from c3.platform.TimeRange import TimeRange
-from c3.platform.PushStreamWithStats import PushStreamWithStats
 from c3.platform.ExportDataResult import ExportDataResult
 from c3.platform.FieldPath import FieldPath
 from c3.platform.StreamType import StreamType
@@ -54,6 +54,7 @@ from c3.platform.RefreshCalcFieldsBatchJob import RefreshCalcFieldsBatchJob
 from c3.platform.RunCreatedOrUpdatedSpec import RunCreatedOrUpdatedSpec
 from c3.platform.ImportDataSpec import ImportDataSpec
 from c3.platform.CreateBatchObjStreamSpec import CreateBatchObjStreamSpec
+from c3.platform.ObjBuilder import ObjBuilder
 from c3.platform.RedShiftExportDataSpec import RedShiftExportDataSpec
 from c3.platform.TouchSpec import TouchSpec
 from c3.platform.EntityType import EntityType
@@ -71,12 +72,11 @@ from c3.platform.EvaluateResult import EvaluateResult
 from c3.platform.SetBuilder import SetBuilder
 from c3.platform.RefreshDepsSpec import RefreshDepsSpec
 from c3.platform.SetType import SetType
-from c3.platform.Promise import Promise
+from c3.platform.MapBuilder import MapBuilder
 from c3.platform.RefreshAnalyticsBatchJob import RefreshAnalyticsBatchJob
 from c3.platform.Exclude import Exclude
 from c3.platform.ClearCollectionSpec import ClearCollectionSpec
 from c3.platform.StartImportDataSpec import StartImportDataSpec
-from c3.platform.MapBuilder import MapBuilder
 from c3.platform.ObjBatch import ObjBatch
 from c3.platform.RefreshUniqueIndexesBatchJob import RefreshUniqueIndexesBatchJob
 from c3.platform.ArrayType import ArrayType
@@ -88,26 +88,27 @@ from c3.platform.RefreshCalcFieldsSpec import RefreshCalcFieldsSpec
 from c3.platform.FetchArrowStreamSpec import FetchArrowStreamSpec
 from c3.platform.ImportDataResult import ImportDataResult
 from c3.platform.EvaluateSpec import EvaluateSpec
-from c3.platform.ObjBuilder import ObjBuilder
 from c3.platform.Expr.CompileOptions import Expr.CompileOptions
 from c3.platform.FieldValue import FieldValue
 from c3.platform.SecondaryDsUpsert import SecondaryDsUpsert
 from c3.platform.ArrowIterator import ArrowIterator
 from c3.platform.ScanSpec import ScanSpec
 from c3.platform.RefreshDefaultFieldsBatchJob import RefreshDefaultFieldsBatchJob
+from c3.platform.ArrayBuilder import ArrayBuilder
 from c3.platform.RefreshUniqueIndexesSpec import RefreshUniqueIndexesSpec
 from c3.platform.VersionEdit import VersionEdit
-from c3.c3Vulndb.VulnScanFile import VulnScanFile
 from c3.platform.ExistsSpec import ExistsSpec
 
-# Python definitions for the C3 type Vulnerability
+# Python definitions for the C3 type CustomerScanResult
 
 
-class Vulnerability():
+class CustomerScanResult():
     """
-    Stores individual vulnerability/CVE entries from scan files.
+    Stores non-matched (unreported) CVEs from customer security scan reports.
+    These are CVEs reported by a customer that do not exist in our vulnerability knowledgebase
+    and require internal triage.
     
-    @remarks this represents a made instance of Vulnerability
+    @remarks this represents a made instance of CustomerScanResult
     """
     
     id: Optional[str]
@@ -149,84 +150,39 @@ class Vulnerability():
 
     vulnId: Optional[str]
     """
-    Unique identifier for the vulnerability/CVE, e.g. "CVE-2019-1010022".
-    """
-
-    path: Optional[str]=None
-    """
-    Affected file/path (can be empty).
-    """
-
-    trigger: Optional[str]=None
-    """
-    What triggers the vulnerability (can be empty).
-    """
-
-    message: Optional[str]=None
-    """
-    Detailed description of the vulnerability.
-    """
-
-    repository: Optional[str]=None
-    """
-    Container image repository, e.g. "registry.c3.ai_c3aiops".
-    """
-
-    tag: Optional[str]=None
-    """
-    Image tag/version, e.g. "2.12.98".
+    CVE identifier from the customer report, e.g. "CVE-2025-32462".
     """
 
     image: Optional[str]=None
     """
-    Full image reference, e.g. "registry.c3.ai_c3aiops:2.12.98".
+    Container image URI from the customer report.
+    """
+
+    tag: Optional[str]=None
+    """
+    Image tag/version from the customer report.
+    """
+
+    repository: Optional[str]=None
+    """
+    Repository/registry from the customer report.
     """
 
     messageSeverity: Optional[str]=None
     """
-    Original/external severity level: CRITICAL, HIGH, MEDIUM, LOW.
+    External severity as reported by the customer (matches Vulnerability.messageSeverity).
     """
 
-    hasFix: Optional[str]=None
+    scanDate: Optional[datetime]=None
     """
-    Whether a fix exists (can be empty).
-    """
-
-    externalCvssVector: Optional[str]=None
-    """
-    External CVSS vector string.
+    When this validation was performed.
     """
 
-    classifications: Optional[str]=None
+    status: Optional[str]=None
     """
-    Classification/label of the vulnerability, e.g. "Memory Safety Attack".
+    Triage status of this unmatched CVE.
     """
-
-    c3AiCvss4Vector: Optional[str]=None
-    """
-    C3 AI's own CVSS4 vector string.
-    """
-
-    c3AiSeverityRating: Optional[str]=None
-    """
-    C3 AI's severity override: Critical, High, Medium, Low.
-    """
-
-    c3AiResponse: Optional[str]=None
-    """
-    C3 AI's response/disposition, e.g. "Not Applicable".
-    """
-
-    vulnComments: Optional[str]=None
-    """
-    Additional context/comments about the vulnerability.
-    """
-
-    scanFile: Optional[VulnScanFile]=None
-    """
-    Reference to the scan file this vulnerability came from.
-    """
-    def __init__(self, id: Optional[str]=None, versionEdits: Optional[Array[VersionEdit]]=None, name: Optional[str]=None, meta: Optional[Meta]=None, version: Optional[int]=None, typeWithBindings: Optional[Type]=None, vulnId: Optional[str]=None, path: Optional[str]=None, trigger: Optional[str]=None, message: Optional[str]=None, repository: Optional[str]=None, tag: Optional[str]=None, image: Optional[str]=None, messageSeverity: Optional[str]=None, hasFix: Optional[str]=None, externalCvssVector: Optional[str]=None, classifications: Optional[str]=None, c3AiCvss4Vector: Optional[str]=None, c3AiSeverityRating: Optional[str]=None, c3AiResponse: Optional[str]=None, vulnComments: Optional[str]=None, scanFile: Optional[VulnScanFile]=None) -> None: ...
+    def __init__(self, id: Optional[str]=None, versionEdits: Optional[Array[VersionEdit]]=None, name: Optional[str]=None, meta: Optional[Meta]=None, version: Optional[int]=None, typeWithBindings: Optional[Type]=None, vulnId: Optional[str]=None, image: Optional[str]=None, tag: Optional[str]=None, repository: Optional[str]=None, messageSeverity: Optional[str]=None, scanDate: Optional[datetime]=None, status: Optional[str]=None) -> None: ...
 
     @overload
     def toJson(self) -> any:
@@ -319,7 +275,7 @@ class Vulnerability():
     """
         ...
     @classmethod
-    def fromJson(cls, json: any) -> Union[Vulnerability]:
+    def fromJson(cls, json: any) -> Union[CustomerScanResult]:
     """
     Load the JSON-based representation and reconstruct the corresponding object.
     
@@ -332,7 +288,7 @@ class Vulnerability():
     """
         ...
     @classmethod
-    def fromJsonString(cls, json: str) -> Union[Vulnerability]:
+    def fromJsonString(cls, json: str) -> Union[CustomerScanResult]:
     """
     Load the JSON-based representation and reconstruct the corresponding object.
     
@@ -345,7 +301,7 @@ class Vulnerability():
     """
         ...
     @classmethod
-    def fromXmlString(cls, xml: str) -> Union[Vulnerability]:
+    def fromXmlString(cls, xml: str) -> Union[CustomerScanResult]:
     """
     Load the XML-based representation and reconstruct the corresponding object.
     
@@ -358,7 +314,7 @@ class Vulnerability():
     """
         ...
     @classmethod
-    def deserialize(cls, contentStr: str, contentType: str) -> Union[Vulnerability]:
+    def deserialize(cls, contentStr: str, contentType: str) -> Union[CustomerScanResult]:
     """
     Load from contentType representation and reconstruct the corresponding object.
     
@@ -408,7 +364,7 @@ class Vulnerability():
     C3 Type of this instance.
     """
         ...
-    def replaceType(self, old: Type, new: Type) -> Vulnerability:
+    def replaceType(self, old: Type, new: Type) -> CustomerScanResult:
     """
     Returns new instance with all references to old type, including result of #type, replaced with new type. If new
     type does not contain fields from old or field value types are not convertable then drops the field.
@@ -731,7 +687,7 @@ class Vulnerability():
     """
         ...
     @overload
-    def mapFieldValues(self, mapper: Callable[[FieldType, Any], Union[Any]], convertValue: bool=None) -> Vulnerability:
+    def mapFieldValues(self, mapper: Callable[[FieldType, Any], Union[Any]], convertValue: bool=None) -> CustomerScanResult:
     """
     Result of this function call is a copy of current instance with all non empty fields replaced based on results of
     the `mapper` invocation.
@@ -743,7 +699,7 @@ class Vulnerability():
     """
         ...
     @overload
-    def mapFieldValues(self, spec: ValueSpec, mapper: Callable[[FieldType, Any], Union[Any]], convertValue: bool=None) -> Vulnerability:
+    def mapFieldValues(self, spec: ValueSpec, mapper: Callable[[FieldType, Any], Union[Any]], convertValue: bool=None) -> CustomerScanResult:
     """
     Result of this function call is a copy of current instance with all fields replaced based on results of the
     `mapper` invocation.
@@ -757,7 +713,7 @@ class Vulnerability():
     """
         ...
     @overload
-    def mapFieldValuesAsync(self, mapper: Callable[[FieldType, Any], Union[Promise[Any]]], convertValue: bool=None) -> Promise[Vulnerability]:
+    def mapFieldValuesAsync(self, mapper: Callable[[FieldType, Any], Union[Promise[Any]]], convertValue: bool=None) -> Promise[CustomerScanResult]:
     """
     Result of this function call is a copy of current instance with all non empty fields replaced based on results of
     the asynchronous `mapper` invocation.
@@ -769,7 +725,7 @@ class Vulnerability():
     """
         ...
     @overload
-    def mapFieldValuesAsync(self, spec: ValueSpec, mapper: Callable[[Union[FieldType], Any], Union[Promise[Any]]], convertValue: bool=None) -> Promise[Vulnerability]:
+    def mapFieldValuesAsync(self, spec: ValueSpec, mapper: Callable[[Union[FieldType], Any], Union[Promise[Any]]], convertValue: bool=None) -> Promise[CustomerScanResult]:
     """
     Result of this function call is a copy of current instance with all fields replaced based on results of the
     asynchronous `mapper` invocation.
@@ -782,7 +738,7 @@ class Vulnerability():
               if true, attempt to convert the value to match the field's type
     """
         ...
-    def mapFieldValue(self, mapper: Callable[[Any], Union[Any]], field: FieldType=None, includeEmpty: bool=None, convertValue: bool=None) -> Vulnerability:
+    def mapFieldValue(self, mapper: Callable[[Any], Union[Any]], field: FieldType=None, includeEmpty: bool=None, convertValue: bool=None) -> CustomerScanResult:
     """
     Result of this function call is a copy of current instance with specified field value replaced based on result of
     the `mapper` invocation.
@@ -797,7 +753,7 @@ class Vulnerability():
     """
         ...
     @overload
-    def mapRefs(self, mapper: Callable[[FieldType, Obj], Union[Obj]], convertValue: bool=None) -> Vulnerability:
+    def mapRefs(self, mapper: Callable[[FieldType, Obj], Union[Obj]], convertValue: bool=None) -> CustomerScanResult:
     """
     Executes the specified lambda against each referenced Obj instance and replaces it's value with result of this
     lambda application.
@@ -812,7 +768,7 @@ class Vulnerability():
     """
         ...
     @overload
-    def mapRefs(self, includeEmpty: bool, mapper: Callable[[FieldType, Obj], Union[Obj]], convertValue: bool=None) -> Vulnerability:
+    def mapRefs(self, includeEmpty: bool, mapper: Callable[[FieldType, Obj], Union[Obj]], convertValue: bool=None) -> CustomerScanResult:
     """
     Executes the specified lambda against each referenced Obj instance and replaces it's value with result of this
     lambda application.
@@ -901,7 +857,7 @@ class Vulnerability():
     """
         ...
     @overload
-    def validateObj(self) -> Vulnerability:
+    def validateObj(self) -> CustomerScanResult:
     """
     Populates all missing default values and throws error if any constraint is violated.
     """
@@ -913,7 +869,7 @@ class Vulnerability():
     """
         ...
     @overload
-    def withField(self, field: str, value: Any, doNotConvert: bool=None) -> Vulnerability:
+    def withField(self, field: str, value: Any, doNotConvert: bool=None) -> CustomerScanResult:
     """
     Builds a new Obj instance by adding the provided field in it. The name must correspond to an existing field
     defined on this type or its mixins. The value must be of the correct type if doNotConvert flag is true.
@@ -931,7 +887,7 @@ class Vulnerability():
     """
         ...
     @overload
-    def withField(self, field: FieldType, value: Any, doNotConvert: bool=None) -> Vulnerability:
+    def withField(self, field: FieldType, value: Any, doNotConvert: bool=None) -> CustomerScanResult:
     """
     Builds a new Obj instance by adding the provided field in it. The name must correspond to an existing field
     defined on this type or its mixins. The value must be of the correct type if doNotConvert flag is true.
@@ -948,7 +904,7 @@ class Vulnerability():
     @see #defaultField
     """
         ...
-    def withFields(self, fields: Map[str, Any], doNotConvert: bool=None) -> Vulnerability:
+    def withFields(self, fields: Map[str, Any], doNotConvert: bool=None) -> CustomerScanResult:
     """
     Builds a new Obj instance by adding the provided fields in it. The name must correspond to an existing fields
     defined on this type or its mixins. The values must be of the correct type if doNotConvert flag is true.
@@ -960,7 +916,7 @@ class Vulnerability():
     @return new Obj
     """
         ...
-    def withFieldAtPath(self, path: str, value: Any, doNotConvert: bool=None, doNotCreateIfMissing: bool=None) -> Vulnerability:
+    def withFieldAtPath(self, path: str, value: Any, doNotConvert: bool=None, doNotCreateIfMissing: bool=None) -> CustomerScanResult:
     """
     Builds a new Obj with the value at the specified path field. If the field is null, the field #isFieldSet to null.
     If you would like to #unsetField, you should call #withoutFieldAtPath instead.
@@ -979,7 +935,7 @@ class Vulnerability():
     @return new Obj
     """
         ...
-    def withoutFieldAtPath(self, path: str) -> Vulnerability:
+    def withoutFieldAtPath(self, path: str) -> CustomerScanResult:
     """
     Builds a new Obj without the specified path field.
     
@@ -995,7 +951,7 @@ class Vulnerability():
     """
         ...
     @overload
-    def withoutField(self, field: str) -> Vulnerability:
+    def withoutField(self, field: str) -> CustomerScanResult:
     """
     Builds a new Obj, removing the field with the provided name.
     
@@ -1010,7 +966,7 @@ class Vulnerability():
     """
         ...
     @overload
-    def withoutField(self, field: FieldType) -> Vulnerability:
+    def withoutField(self, field: FieldType) -> CustomerScanResult:
     """
     Builds a new Obj, removing the field with the provided field type.
     
@@ -1024,7 +980,7 @@ class Vulnerability():
     @see #removeField
     """
         ...
-    def withoutFields(self, fields: Array[str]) -> Vulnerability:
+    def withoutFields(self, fields: Array[str]) -> CustomerScanResult:
     """
     Builds a new Obj, removing the fields with the provided names.
     
@@ -1035,7 +991,7 @@ class Vulnerability():
     @return new Obj with removed fields
     """
         ...
-    def withoutFieldsByType(self, fields: Array[FieldType]) -> Vulnerability:
+    def withoutFieldsByType(self, fields: Array[FieldType]) -> CustomerScanResult:
     """
     Builds a new Obj, removing the fields with the provided field types. Be sure to use the FieldType instance for the
     exact same type as the type of the obj to respect the "ordinal" of the field type
@@ -1047,7 +1003,7 @@ class Vulnerability():
     @return new Obj with removed fields
     """
         ...
-    def withoutSecretFields(self) -> Vulnerability:
+    def withoutSecretFields(self) -> CustomerScanResult:
     """
     @return a new Obj, removing the field types marked with annotation @config(secret=true) recursively
     """
@@ -1057,7 +1013,7 @@ class Vulnerability():
     @return a list of the secret field paths that were found to be set on this Obj.
     """
         ...
-    def withDefaults(self, includeEmptyRefsWithDefaults: bool=None, defaultFields: Array[str]=None) -> Vulnerability:
+    def withDefaults(self, includeEmptyRefsWithDefaults: bool=None, defaultFields: Array[str]=None) -> CustomerScanResult:
     """
     Builds a new Obj instance by adding the default values (if defined) for all unset fields. This is implemented by
     calling {@link FieldType#defaultValue defaultValue} for a field if it is not already set and
@@ -1081,7 +1037,7 @@ class Vulnerability():
     """
         ...
     @overload
-    def defaultField(self, field: str) -> Vulnerability:
+    def defaultField(self, field: str) -> CustomerScanResult:
     """
     Builds a new Obj, by setting a field on this `Obj` to the field's default value. If the field has no default, this
     method will behave the same as {@link #unsetField}.
@@ -1095,7 +1051,7 @@ class Vulnerability():
     """
         ...
     @overload
-    def defaultField(self, field: FieldType) -> Vulnerability:
+    def defaultField(self, field: FieldType) -> CustomerScanResult:
     """
     Builds a new Obj, by setting a field on this `Obj` to the fields default value. If the field has no default, this
     method will behave the same as {@link #unsetField}.
@@ -1109,7 +1065,7 @@ class Vulnerability():
     """
         ...
     @overload
-    def unsetField(self, field: str) -> Vulnerability:
+    def unsetField(self, field: str) -> CustomerScanResult:
     """
     Unsets a field from this `Obj`, meaning that the field will become not {@link #isFieldSet set}. Note that this
     is different from {@link removeField}
@@ -1123,7 +1079,7 @@ class Vulnerability():
     """
         ...
     @overload
-    def unsetField(self, field: FieldType) -> Vulnerability:
+    def unsetField(self, field: FieldType) -> CustomerScanResult:
     """
     Unsets a field from this `Obj`, meaning that the field will become not {@link #isFieldSet set}. Note that this
     is different from {@link removeField}
@@ -1137,7 +1093,7 @@ class Vulnerability():
     """
         ...
     @overload
-    def removeField(self, field: str) -> Vulnerability:
+    def removeField(self, field: str) -> CustomerScanResult:
     """
     Removes a field from this `Obj`, meaning that the field will become {@link isFieldMissing missing}. Note that this
     is different from {@link #unsetField}
@@ -1151,7 +1107,7 @@ class Vulnerability():
     """
         ...
     @overload
-    def removeField(self, field: FieldType) -> Vulnerability:
+    def removeField(self, field: FieldType) -> CustomerScanResult:
     """
     Removes a field from this `Obj`, meaning that the field will become {@link isFieldMissing missing}. Note that this
     is different from {@link #unsetField}
@@ -1165,7 +1121,7 @@ class Vulnerability():
     """
         ...
     @overload
-    def mergeObj(self, other: Obj, fieldPathMergeSpec: Map[str, str]=None) -> Vulnerability:
+    def mergeObj(self, other: Obj, fieldPathMergeSpec: Map[str, str]=None) -> CustomerScanResult:
     """
     Merges all the fields of the provided Obj into this instance, producing a new Obj of the same type as this one.
     In case of conflicts, fields of other instance take precedence unless otherwise specified by the fieldPathMergeSpec
@@ -1178,7 +1134,7 @@ class Vulnerability():
     """
         ...
     @overload
-    def mergeObj(self, other: Obj, otherFieldsFilter: Type) -> Vulnerability:
+    def mergeObj(self, other: Obj, otherFieldsFilter: Type) -> CustomerScanResult:
     """
     Merges all the fields of the provided Obj into this instance, producing a new Obj of the same type as this one.
     In case of conflicts, fields of other instance take precedence.
@@ -1191,7 +1147,7 @@ class Vulnerability():
     """
         ...
     @overload
-    def mergeObj(self, other: Obj, merger: Callable[[Union[FieldPath], Union[Any], Union[FieldPath], Union[Any]], Union[Any]], deep: bool=None) -> Vulnerability:
+    def mergeObj(self, other: Obj, merger: Callable[[Union[FieldPath], Union[Any], Union[FieldPath], Union[Any]], Union[Any]], deep: bool=None) -> CustomerScanResult:
     """
     Merge the fields of this Obj with corresponding fields on other Obj using the provided lambda. This means that
     fields that exist on other Obj and do not exist on this Obj will not be added to final Obj.
@@ -1201,7 +1157,7 @@ class Vulnerability():
     """
         ...
     @overload
-    def mergeObj(self, other: Obj, merger: Callable[[Union[FieldType], Union[Any], Union[FieldType], Union[Any]], Union[Any]]) -> Vulnerability:
+    def mergeObj(self, other: Obj, merger: Callable[[Union[FieldType], Union[Any], Union[FieldType], Union[Any]], Union[Any]]) -> CustomerScanResult:
     """
     Merge the fields of this Obj with corresponding fields on other Obj using the provided lambda. This means that
     fields that exist other Obj and do not exist on this Obj will not be added to final Obj or evaluated. Does not
@@ -1214,9 +1170,9 @@ class Vulnerability():
     Fields that non null in only one of this and other will be in the resulting Obj without change.
     """
         ...
-    def mergeJson(self, json: any) -> Vulnerability:
+    def mergeJson(self, json: any) -> CustomerScanResult:
         ...
-    def mergeChildren(self, deep: bool=None, objKey: Callable[[Union[Obj]], Union[Any]]=None, filter: Callable[[str], bool]=None) -> Vulnerability:
+    def mergeChildren(self, deep: bool=None, objKey: Callable[[Union[Obj]], Union[Any]]=None, filter: Callable[[str], bool]=None) -> CustomerScanResult:
     """
     Merge the obj references within the current obj
     @param deep
@@ -1228,14 +1184,14 @@ class Vulnerability():
     @return Obj with child references merged
     """
         ...
-    def sumObj(self, other: Obj, deep: bool=None) -> Vulnerability:
+    def sumObj(self, other: Obj, deep: bool=None) -> CustomerScanResult:
     """
     Adds the numeric Obj fields with the other Objs respective fields.
     If deep is set it will traverse reference and collection fields and sum corresponding numeric fields in
     references with same name and collection elements at same index or key.
     """
         ...
-    def singletonArray(self) -> Array[Vulnerability]:
+    def singletonArray(self) -> Array[CustomerScanResult]:
     """
     Build an array of the correct type with a single element which is this instance.
     
@@ -1243,18 +1199,18 @@ class Vulnerability():
     """
         ...
     @classmethod
-    def array(cls, *elements: Array[Any]) -> Union[Array[Vulnerability]]:
+    def array(cls, *elements: Array[Any]) -> Union[Array[CustomerScanResult]]:
     """
     Creates an array of instances of this type.
     """
         ...
     @classmethod
-    def arrayBuilder(cls) -> Union[ArrayBuilder[Vulnerability]]:
+    def arrayBuilder(cls) -> Union[ArrayBuilder[CustomerScanResult]]:
     """
     Creates an array of instances of this type.
     """
         ...
-    def singletonSet(self) -> Set[Vulnerability]:
+    def singletonSet(self) -> Set[CustomerScanResult]:
     """
     Build an set of the correct type with a single element which is this instance.
     
@@ -1262,19 +1218,19 @@ class Vulnerability():
     """
         ...
     @classmethod
-    def setBuilder(cls) -> Union[SetBuilder[Vulnerability]]:
+    def setBuilder(cls) -> Union[SetBuilder[CustomerScanResult]]:
     """
     Creates a set of instances of this type.
     """
         ...
     @classmethod
-    def mapBuilder(cls) -> Union[MapBuilder[str, Vulnerability]]:
+    def mapBuilder(cls) -> Union[MapBuilder[str, CustomerScanResult]]:
     """
     Create a map of string to elements of this type.
     """
         ...
     @classmethod
-    def mapBuilderOf(cls, keyType: ValueType) -> Union[MapBuilder[Any, Vulnerability]]:
+    def mapBuilderOf(cls, keyType: ValueType) -> Union[MapBuilder[Any, CustomerScanResult]]:
     """
     Create a map with the given key type and elements of this type.
     """
@@ -1297,27 +1253,27 @@ class Vulnerability():
     @classmethod
     def myStreamType(cls) -> StreamType:
         ...
-    def toBuilder(self) -> ObjBuilder[Vulnerability]:
+    def toBuilder(self) -> ObjBuilder[CustomerScanResult]:
     """
     @return new ObjBuilder with initial state set to fields of this instance.
     """
         ...
     @classmethod
-    def builder(cls) -> ObjBuilder[Vulnerability]:
+    def builder(cls) -> ObjBuilder[CustomerScanResult]:
     """
     @return new ObjBuilder of this instance.
     """
         ...
     @overload
     @classmethod
-    def fromFields(cls, fields: Map[FieldType, Any], spec: Obj.MakeSpec) -> Vulnerability:
+    def fromFields(cls, fields: Map[FieldType, Any], spec: Obj.MakeSpec) -> CustomerScanResult:
     """
     Construct instance of this type from provided field values and options
     """
         ...
     @overload
     @classmethod
-    def fromFields(cls, fields: Map[FieldType, Union[Any,Any]], withDefaults: bool=None) -> Vulnerability:
+    def fromFields(cls, fields: Map[FieldType, Union[Any,Any]], withDefaults: bool=None) -> CustomerScanResult:
     """
     Construct an instance of this type from provided fields
     @param fields
@@ -1330,14 +1286,14 @@ class Vulnerability():
         ...
     @overload
     @classmethod
-    def make(cls, fields: Map[str, Any], spec: Obj.MakeSpec) -> Vulnerability:
+    def make(cls, fields: Map[str, Any], spec: Obj.MakeSpec) -> CustomerScanResult:
     """
     Construct instance of this type from provided field values and options
     """
         ...
     @overload
     @classmethod
-    def make(cls, withDefaults: bool=None) -> Vulnerability:
+    def make(cls, withDefaults: bool=None) -> CustomerScanResult:
     """
     Construct an instance of this type with no non-default field values unless explicitly specified by passing param true
     @param withDefaults
@@ -1349,7 +1305,7 @@ class Vulnerability():
         ...
     @overload
     @classmethod
-    def make(cls, fields: Map[str, Union[Any,Any]], withDefaults: bool=None) -> Vulnerability:
+    def make(cls, fields: Map[str, Union[Any,Any]], withDefaults: bool=None) -> CustomerScanResult:
     """
     Construct an instance from provided fields
     @param fields
@@ -1370,7 +1326,7 @@ class Vulnerability():
         ...
     @overload
     @classmethod
-    def make(cls, fields: Any, withDefaults: bool=None) -> Vulnerability:
+    def make(cls, fields: Any, withDefaults: bool=None) -> CustomerScanResult:
     """
     Construct an instance of this type from provided fields. Note it is more efficient to use #fromFields and other overloads
     
@@ -1420,7 +1376,7 @@ class Vulnerability():
         ...
     @overload
     @classmethod
-    def make(cls, s: str) -> Union[Vulnerability]:
+    def make(cls, s: str) -> Union[CustomerScanResult]:
     """
     Construct an instance of this type from the string. This is an alias for #fromString, as a specific overload
     when the argument is a known string.
@@ -1429,7 +1385,7 @@ class Vulnerability():
     """
         ...
     @classmethod
-    def remake(cls, other: Obj, failIfExtraOrInvalidFields: bool=None) -> Vulnerability:
+    def remake(cls, other: Obj, failIfExtraOrInvalidFields: bool=None) -> CustomerScanResult:
     """
     Construct an instance of this type from provided instance of a subtype or a "duck type".
     """
@@ -1455,7 +1411,7 @@ class Vulnerability():
     Note that it introduces additional overhead so should only be implemented for low volume data.
     """
         ...
-    def afterMake(self) -> Vulnerability:
+    def afterMake(self) -> CustomerScanResult:
     """
     Optional override that will be called after every instance creation.
     
@@ -1463,7 +1419,7 @@ class Vulnerability():
     """
         ...
     @classmethod
-    def cachedEmptyInst(cls) -> Vulnerability:
+    def cachedEmptyInst(cls) -> CustomerScanResult:
     """
     Creates an empty inst using `MyType.make()` and caches it. Avoid recreating multiple copies of the spec for
     every action dispatch. The cached inst can also be used for comparing whether the object is an empty or not
@@ -1478,14 +1434,14 @@ class Vulnerability():
     """
         ...
     @classmethod
-    def generateObjs(cls, spec: Obj.GenerateSpec=None) -> Union[Stream[Vulnerability]]:
+    def generateObjs(cls, spec: Obj.GenerateSpec=None) -> Union[Stream[CustomerScanResult]]:
     """
     Generate a stream of instances of this type. The stream is endless and will call #generateObj each time a new
     value is read.
     """
         ...
     @classmethod
-    def generateObj(cls, spec: Obj.GenerateSpec=None) -> Vulnerability:
+    def generateObj(cls, spec: Obj.GenerateSpec=None) -> CustomerScanResult:
     """
     Generate a single instance of this type. The base implementation uses {@link DataGenObj} to generate uniform
     random (gibberish) values for all fields, but it may be overridden by specific types with custom logic that
@@ -1494,7 +1450,7 @@ class Vulnerability():
         ...
     @overload
     @classmethod
-    def fetch(cls, spec: FetchSpec=None) -> FetchResult[Vulnerability]:
+    def fetch(cls, spec: FetchSpec=None) -> FetchResult[CustomerScanResult]:
     """
     Fetches multiple obj instances based on a specification.  Only objs that the caller is authorized to fetch will be
     returned.
@@ -1507,7 +1463,7 @@ class Vulnerability():
         ...
     @overload
     @classmethod
-    def fetch(cls, filter: Filter) -> FetchResult[Vulnerability]:
+    def fetch(cls, filter: Filter) -> FetchResult[CustomerScanResult]:
     """
     Fetches multiple obj instances based on a filter.  Only objs that the caller is authorized to fetch will be
     returned.
@@ -1518,7 +1474,7 @@ class Vulnerability():
     """
         ...
     @classmethod
-    def fetchObjStream(cls, spec: FetchStreamSpec=None) -> Union[Stream[Vulnerability]]:
+    def fetchObjStream(cls, spec: FetchStreamSpec=None) -> Union[Stream[CustomerScanResult]]:
     """
     Fetches multiple obj instances based on a specification.  Only objs that the caller is authorized to fetch will be
     returned.
@@ -1550,7 +1506,7 @@ class Vulnerability():
     """
         ...
     @classmethod
-    def fetchMultiLocale(cls, spec: MultiLocaleFetchSpec=None) -> Union[Map[str, FetchResult[Vulnerability]]]:
+    def fetchMultiLocale(cls, spec: MultiLocaleFetchSpec=None) -> Union[Map[str, FetchResult[CustomerScanResult]]]:
     """
     Fetched multiple obj instances in multiple locales based on specification.
     
@@ -1635,7 +1591,7 @@ class Vulnerability():
     Used internally to fetch as a stream (e.g. FetchResultOvi)
     """
         ...
-    def get(self, include: str=None) -> Union[Vulnerability]:
+    def get(self, include: str=None) -> Union[CustomerScanResult]:
     """
     Gets an instance of a single obj.  If the caller is not authorized to fetch the obj, it will not be returned.
     
@@ -1645,7 +1601,7 @@ class Vulnerability():
             those fields will be returned. Otherwise the entire obj will be returned.
     """
         ...
-    def getSpecific(self, include: str=None) -> Union[Vulnerability]:
+    def getSpecific(self, include: str=None) -> Union[CustomerScanResult]:
     """
     Gets an instance of a single obj in it's leaf type if the type is extendable.  If the caller is not authorized
     to fetch the obj, it will not be returned.
@@ -1657,7 +1613,7 @@ class Vulnerability():
             those fields will be returned. Otherwise the entire obj will be returned.
     """
         ...
-    def getMissing(self, spec: GetMissingSpec) -> Vulnerability:
+    def getMissing(self, spec: GetMissingSpec) -> CustomerScanResult:
     """
     Function to check if an obj was already fetched with an include that contains at least the fields of a specified
     include and fetches the missing data if it wasn't.  The returned instance, by default will be the original instance
@@ -1670,7 +1626,7 @@ class Vulnerability():
     @return instance of the obj with all requested fields.
     """
         ...
-    def getDirect(self, include: str=None) -> Union[Vulnerability]:
+    def getDirect(self, include: str=None) -> Union[CustomerScanResult]:
     """
     Gets an obj instance directly from Cassandra, bypassing the normal fetch framework.  It is only valid for C3 types
     that are stored in Cassandra.
@@ -1685,7 +1641,7 @@ class Vulnerability():
             those fields will be returned. Otherwise the entire obj will be returned.
     """
         ...
-    def applyReverseEdit(self, versionEdit: VersionEdit) -> Vulnerability:
+    def applyReverseEdit(self, versionEdit: VersionEdit) -> CustomerScanResult:
     """
     Applies a reverse edit (e.g. VersionEdit) to an instance.
     
@@ -1722,7 +1678,7 @@ class Vulnerability():
     """
         ...
     @classmethod
-    def fromString(cls, s: str) -> Union[Vulnerability]:
+    def fromString(cls, s: str) -> Union[CustomerScanResult]:
     """
     Parse the string-based representation and reconstruct the corresponding instance. This must be implemented to
     provide deserialization.
@@ -1736,7 +1692,7 @@ class Vulnerability():
     @see #toString
     """
         ...
-    def create(self, spec: UpsertSpec=None) -> Union[Vulnerability]:
+    def create(self, spec: UpsertSpec=None) -> Union[CustomerScanResult]:
     """
     Creates an instance of a C3 type. If the operation fails an exception will be thrown.  This will fail if the
     instance already exist.
@@ -1748,7 +1704,7 @@ class Vulnerability():
     """
         ...
     @classmethod
-    def createBatch(cls, objs: Array[Vulnerability], spec: UpsertSpec=None) -> Union[ObjList[Vulnerability]]:
+    def createBatch(cls, objs: Array[CustomerScanResult], spec: UpsertSpec=None) -> Union[ObjList[CustomerScanResult]]:
     """
     Creates multiple instances of a C3 type. If the operation fails and {@link UpsertSpec#dontThrowOnBatchError} is not
     specified (the default), then a C3BatchException will be thrown.  Otherwise {@link errors will be reported in the
@@ -1764,7 +1720,7 @@ class Vulnerability():
     """
         ...
     @classmethod
-    def createBatchObjStream(cls, objs: Stream[Vulnerability], spec: CreateBatchObjStreamSpec=None) -> Union[ObjList[Vulnerability]]:
+    def createBatchObjStream(cls, objs: Stream[CustomerScanResult], spec: CreateBatchObjStreamSpec=None) -> Union[ObjList[CustomerScanResult]]:
     """
     Creates multiple instances of a C3 type. If the operation fails and {@link UpsertSpec#dontThrowOnBatchError} is not
     specified (the default), then a C3BatchException will be thrown.  Otherwise {@link errors will be reported in the
@@ -1778,7 +1734,7 @@ class Vulnerability():
              `spec.includeObjsInResults`.
     """
         ...
-    def update(self, srcObj: Vulnerability=None, spec: UpsertSpec=None) -> Union[Vulnerability]:
+    def update(self, srcObj: CustomerScanResult=None, spec: UpsertSpec=None) -> Union[CustomerScanResult]:
     """
     Updates an instance of a C3 type. If the operation fails an exception will be thrown.  This will fail if the
     instance does not already exist.
@@ -1792,7 +1748,7 @@ class Vulnerability():
             obj will have only those fields populated. Otherwise only the id field will be populated.
     """
         ...
-    def upsert(self, srcObj: Vulnerability=None, spec: UpsertSpec=None) -> Union[Vulnerability]:
+    def upsert(self, srcObj: CustomerScanResult=None, spec: UpsertSpec=None) -> Union[CustomerScanResult]:
     """
     Creates an instance of a C3 type if it doesn't exist or updates it if it does. If the operation fails an
     exception will be thrown.
@@ -1808,7 +1764,7 @@ class Vulnerability():
     """
         ...
     @overload
-    def merge(self, spec: MergeSpec=None) -> Union[Vulnerability]:
+    def merge(self, spec: MergeSpec=None) -> Union[CustomerScanResult]:
     """
     Merges an instance of a C3 type if it exists and creates it if it doesn't. Merging an obj instance by default only
     updates the non-null field values in the input obj.  Null field values are ignored.  Nullness of field values
@@ -1852,7 +1808,7 @@ class Vulnerability():
     """
         ...
     @overload
-    def merge(self, mergeInclude: str, spec: MergeSpec=None) -> Union[Vulnerability]:
+    def merge(self, mergeInclude: str, spec: MergeSpec=None) -> Union[CustomerScanResult]:
     """
     Merges an instance of a C3 type if it exists and creates it if it doesn't.
     
@@ -1869,7 +1825,7 @@ class Vulnerability():
     @return The created or updated obj.
     """
         ...
-    def touch(self, spec: TouchSpec=None) -> Union[Vulnerability]:
+    def touch(self, spec: TouchSpec=None) -> Union[CustomerScanResult]:
     """
     Updates the 'meta.updated' field to the current time.  If the obj doesn't exist an error will be returned.
     
@@ -1880,7 +1836,7 @@ class Vulnerability():
     """
         ...
     @classmethod
-    def updateBatch(cls, objs: Array[Vulnerability], srcObjs: Array[Vulnerability]=None, spec: UpsertSpec=None) -> Union[ObjList[Vulnerability]]:
+    def updateBatch(cls, objs: Array[CustomerScanResult], srcObjs: Array[CustomerScanResult]=None, spec: UpsertSpec=None) -> Union[ObjList[CustomerScanResult]]:
     """
     Updates multiple instances of a C3 type. If the operation fails and {@link UpsertSpec#dontThrowOnBatchError} is not
     specified (the default), then a C3BatchException will be thrown.  Otherwise {@linkerrors will be reported in the
@@ -1900,7 +1856,7 @@ class Vulnerability():
     """
         ...
     @classmethod
-    def updateObjs(cls, objs: Callable[[], Union[Array[Vulnerability]]], spec: UpsertSpec=None) -> Union[ObjList[Vulnerability]]:
+    def updateObjs(cls, objs: Callable[[], Union[Array[CustomerScanResult]]], spec: UpsertSpec=None) -> Union[ObjList[CustomerScanResult]]:
     """
     Updates multiple instances of a C3 type. If the operation fails due to a version conflict error, the lambda will be
     called again to provide updated instances to be updated. If the operation fails for other reasons and
@@ -1917,7 +1873,7 @@ class Vulnerability():
     """
         ...
     @classmethod
-    def upsertBatch(cls, objs: Array[Vulnerability], srcObjs: Array[Vulnerability]=None, spec: UpsertSpec=None) -> Union[ObjList[Vulnerability]]:
+    def upsertBatch(cls, objs: Array[CustomerScanResult], srcObjs: Array[CustomerScanResult]=None, spec: UpsertSpec=None) -> Union[ObjList[CustomerScanResult]]:
     """
     Creates instances of a C3 type if they don't already exist and updates them if they do exist. If the operation
     fails errors will be reported in the returned {@link ObjList}.
@@ -1936,7 +1892,7 @@ class Vulnerability():
     """
         ...
     @classmethod
-    def upsertObjs(cls, objs: Callable[[], Union[Array[Vulnerability]]], spec: UpsertSpec=None) -> Union[ObjList[Vulnerability]]:
+    def upsertObjs(cls, objs: Callable[[], Union[Array[CustomerScanResult]]], spec: UpsertSpec=None) -> Union[ObjList[CustomerScanResult]]:
     """
     Creates instances of a C3 type if they don't already exist and updates them if they do exist. If the operation
     fails due to a version conflict error, the lambda will be called again to provide updated instances to be upserted.
@@ -1954,7 +1910,7 @@ class Vulnerability():
     """
         ...
     @classmethod
-    def touchBatch(cls, objs: Array[Vulnerability], spec: TouchSpec=None) -> Union[ObjList[Vulnerability]]:
+    def touchBatch(cls, objs: Array[CustomerScanResult], spec: TouchSpec=None) -> Union[ObjList[CustomerScanResult]]:
     """
     Updates the 'meta.updated' field to the current time for a batch of objs.  Attempts to touch non-existing
     objs will be considered an error.
@@ -1969,7 +1925,7 @@ class Vulnerability():
         ...
     @overload
     @classmethod
-    def mergeBatch(cls, objs: Array[Vulnerability], spec: MergeSpec=None) -> Union[ObjList[Vulnerability]]:
+    def mergeBatch(cls, objs: Array[CustomerScanResult], spec: MergeSpec=None) -> Union[ObjList[CustomerScanResult]]:
     """
     Merges multiple instances of a C3 type or creates them if they don't exist. If the operation fails and {@link
     UpsertSpec#dontThrowOnBatchError} is not specified (the default), then a C3BatchException will be thrown.
@@ -1995,7 +1951,7 @@ class Vulnerability():
         ...
     @overload
     @classmethod
-    def mergeBatch(cls, objs: Array[Vulnerability], mergeInclude: str, spec: MergeSpec=None) -> Union[ObjList[Vulnerability]]:
+    def mergeBatch(cls, objs: Array[CustomerScanResult], mergeInclude: str, spec: MergeSpec=None) -> Union[ObjList[CustomerScanResult]]:
     """
     Merges multiple instances of a C3 type or creates them if they don't exist. If the operation fails and {@link
     UpsertSpec#dontThrowOnBatchError} is not specified (the default), then a C3BatchException will be thrown.
@@ -2023,7 +1979,7 @@ class Vulnerability():
     """
         ...
     @classmethod
-    def mergeObjs(cls, objs: Callable[[], Union[Array[Vulnerability]]], mergeInclude: str, spec: MergeSpec=None) -> Union[ObjList[Vulnerability]]:
+    def mergeObjs(cls, objs: Callable[[], Union[Array[CustomerScanResult]]], mergeInclude: str, spec: MergeSpec=None) -> Union[ObjList[CustomerScanResult]]:
     """
     Merges multiple instances of a C3 type or creates them if they don't exist. If the operation fails due to a version
     conflict error, the lambda will be called again to provide updated instances to be upserted. If the operation
@@ -2054,7 +2010,7 @@ class Vulnerability():
         ...
     @overload
     @classmethod
-    def mergeAll(cls, mergeObj: Vulnerability, spec: MergeAllSpec=None) -> Union[int]:
+    def mergeAll(cls, mergeObj: CustomerScanResult, spec: MergeAllSpec=None) -> Union[int]:
     """
     Merges an obj into multiple instances of a C3 type (e.g. mass merge). Like the {@link merge} and {@link mergeBatch}
     functions, the set of fields to be merged can be controlled by specifying an include spec in either
@@ -2073,7 +2029,7 @@ class Vulnerability():
         ...
     @overload
     @classmethod
-    def mergeAll(cls, mergeObj: Vulnerability, mergeInclude: str, spec: MergeAllSpec=None) -> Union[int]:
+    def mergeAll(cls, mergeObj: CustomerScanResult, mergeInclude: str, spec: MergeAllSpec=None) -> Union[int]:
     """
     Merges an obj into multiple instances of a C3 type (e.g. mass merge). The objs to perform the operation on can be
     controlled by specifying the {@link MergeAllSpec#filter}.  Valid filter expressions follow the same rules as in
@@ -2108,7 +2064,7 @@ class Vulnerability():
     """
         ...
     @classmethod
-    def removeBatch(cls, objs: Array[Vulnerability], spec: UpsertSpec=None) -> Union[ObjList[Vulnerability]]:
+    def removeBatch(cls, objs: Array[CustomerScanResult], spec: UpsertSpec=None) -> Union[ObjList[CustomerScanResult]]:
     """
     Removes multiple instances of a C3 type. If the operation fails and {@link UpsertSpec#dontThrowOnBatchError} is not
     specified (the default), then a C3BatchException will be thrown.  Otherwise {@link ObjList#errors errors} will be
@@ -2149,7 +2105,7 @@ class Vulnerability():
     """
         ...
     @classmethod
-    def replace(cls, objs: Array[Vulnerability], spec: UpsertSpec=None) -> Union[ObjList[Vulnerability]]:
+    def replace(cls, objs: Array[CustomerScanResult], spec: UpsertSpec=None) -> Union[ObjList[CustomerScanResult]]:
     """
     Replaces all instances of a C3 type. If the operation fails errors will be reported in the returned {@link ObjList}.
     
@@ -2162,7 +2118,7 @@ class Vulnerability():
             populated. Otherwise only the id field will be populated.
     """
         ...
-    def unremove(self) -> Union[Vulnerability]:
+    def unremove(self) -> Union[CustomerScanResult]:
     """
     Recovers archived instances of a C3 type (e.g. those removed via the {@link remove}, {@link removeAll} and
     {@link removeBatch} functions). If the operation fails an exception will be thrown.
@@ -2183,7 +2139,7 @@ class Vulnerability():
     """
         ...
     @classmethod
-    def beforeCreate(cls, objs: Array[Vulnerability]) -> ObjList[Vulnerability]:
+    def beforeCreate(cls, objs: Array[CustomerScanResult]) -> ObjList[CustomerScanResult]:
     """
     Callback that is called synchronously during an operation that creates objs before those objs are created.  The
     implementer can perform validation or additional logic.
@@ -2195,7 +2151,7 @@ class Vulnerability():
     """
         ...
     @classmethod
-    def beforeUpdate(cls, objs: Array[Vulnerability]) -> ObjList[Vulnerability]:
+    def beforeUpdate(cls, objs: Array[CustomerScanResult]) -> ObjList[CustomerScanResult]:
     """
     Callback that is called synchronously during an operation that updates objs before those objs are updated.  The
     implementer can perform validation or additional logic.
@@ -2210,7 +2166,7 @@ class Vulnerability():
     """
         ...
     @classmethod
-    def beforeRemove(cls, objs: Array[Vulnerability]) -> ObjList[Vulnerability]:
+    def beforeRemove(cls, objs: Array[CustomerScanResult]) -> ObjList[CustomerScanResult]:
     """
     Callback that is called synchronously during an operation that removes objs before those objs are removed.  The
     implementer can perform validation or additional logic.
@@ -2225,7 +2181,7 @@ class Vulnerability():
     """
         ...
     @classmethod
-    def afterCreate(cls, objs: Array[Vulnerability]) -> Union[Array[ObjError]]:
+    def afterCreate(cls, objs: Array[CustomerScanResult]) -> Union[Array[ObjError]]:
     """
     Callback that is called synchronously during a request that creates objs after those objs are created.  The
     implementer can perform additional logic.
@@ -2238,7 +2194,7 @@ class Vulnerability():
     """
         ...
     @classmethod
-    def afterUpdate(cls, objs: Array[Vulnerability]) -> Union[Array[ObjError]]:
+    def afterUpdate(cls, objs: Array[CustomerScanResult]) -> Union[Array[ObjError]]:
     """
     Callback that is called synchronously during a request that updates objs after those objs are updated.  The
     implementer can perform additional logic.
@@ -2251,7 +2207,7 @@ class Vulnerability():
     """
         ...
     @classmethod
-    def afterRemove(cls, objs: Array[Vulnerability]) -> Union[Array[ObjError]]:
+    def afterRemove(cls, objs: Array[CustomerScanResult]) -> Union[Array[ObjError]]:
     """
     Callback that is called synchronously during a request that removes objs after those objs are removed.  The
     implementer can perform additional logic.
@@ -2537,13 +2493,13 @@ class Vulnerability():
     """
         ...
     @classmethod
-    def startImportData(cls, spec: StartImportDataSpec=None) -> PushStream[Vulnerability]:
+    def startImportData(cls, spec: StartImportDataSpec=None) -> PushStream[CustomerScanResult]:
     """
     @return a push stream to import instances of this type.
     """
         ...
     @classmethod
-    def startImportDataWithStats(cls, spec: StartImportDataSpec=None) -> PushStreamWithStats[Vulnerability]:
+    def startImportDataWithStats(cls, spec: StartImportDataSpec=None) -> PushStreamWithStats[CustomerScanResult]:
     """
     @return a push stream to import instances of this type.
     """
@@ -2583,7 +2539,7 @@ class Vulnerability():
     """
         ...
     @classmethod
-    def forId(cls, id: str, failIfMissing: bool=None) -> Union[Vulnerability]:
+    def forId(cls, id: str, failIfMissing: bool=None) -> Union[CustomerScanResult]:
     """
     @return single instance of this Identified type by id.
     """
@@ -2634,7 +2590,7 @@ class Vulnerability():
     @return A {@link GenerateDataSpec} that can be used in {@link generateData} to produce more data of a similar shape.
     """
         ...
-    def withoutIdentity(self) -> Union[Vulnerability]:
+    def withoutIdentity(self) -> Union[CustomerScanResult]:
     """
     Removes the identifying fields {@link #id}, {@link #meta}, and {@link #version} of the instance it's called on,
     such that a subsequent upsert will create a new instance.
@@ -2652,7 +2608,7 @@ class Vulnerability():
     """
         ...
     @classmethod
-    def typeOfBatch(cls, objs: Array[Vulnerability]) -> Union[Array[EntityType]]:
+    def typeOfBatch(cls, objs: Array[CustomerScanResult]) -> Union[Array[EntityType]]:
     """
     Gets the specific C3 type hierarchy for multiple obj instances.  For a non-extendable type the hierarchy will be the
     C3 type of the input obj.  For extendable types it will contain the concrete extension type for the instance as well
@@ -2707,7 +2663,7 @@ class Vulnerability():
     """
         ...
     @classmethod
-    def dbEcho(cls, template: Vulnerability=None, count: int=None, sendBack: bool=None) -> Union[int]:
+    def dbEcho(cls, template: CustomerScanResult=None, count: int=None, sendBack: bool=None) -> Union[int]:
     """
     Used only by DatabaseTestEngine
     """
@@ -2796,7 +2752,7 @@ class Vulnerability():
     """
         ...
     @classmethod
-    def callbackLogic(cls, objs: Array[Vulnerability], callback: Callable[[Union[Vulnerability]], Union[Vulnerability]]=None) -> ObjList[Vulnerability]:
+    def callbackLogic(cls, objs: Array[CustomerScanResult], callback: Callable[[Union[CustomerScanResult]], Union[CustomerScanResult]]=None) -> ObjList[CustomerScanResult]:
     """
     Implements a simple logic for Persistable call-backs like before create by looping each input obj and
     calling a transform for it.
@@ -2806,7 +2762,7 @@ class Vulnerability():
     """
         ...
     @classmethod
-    def afterCallbackLogic(cls, objs: Array[Vulnerability], callback: Callable[[Union[Vulnerability]], Union[Vulnerability]]=None) -> Union[Array[ObjError]]:
+    def afterCallbackLogic(cls, objs: Array[CustomerScanResult], callback: Callable[[Union[CustomerScanResult]], Union[CustomerScanResult]]=None) -> Union[Array[ObjError]]:
     """
     Implements a simple logic for Persistable "after" call-backs like after create by looping each input obj and
     calling a transform for it.
@@ -2845,37 +2801,11 @@ class Vulnerability():
     """
         ...
     @classmethod
-    def getVulnsForFile(cls, scanFileId: str=None) -> Union[Array[Vulnerability]]:
+    def saveUnmatched(cls, rows: Array[any]=None) -> Union[Array[CustomerScanResult]]:
     """
-    Returns all vulnerabilities for a given scan file.
-    @param scanFileId ID of the scan file.
-    @return Array of Vulnerability objects.
-    """
-        ...
-    @classmethod
-    def getSeveritySummary(cls, scanFileId: str=None) -> Union[any]:
-    """
-    Returns aggregated count by C3 AI severity rating for a given scan file.
-    @param scanFileId ID of the scan file.
-    @return JSON with severity counts: { Critical, High, Medium, Low, total }.
-    """
-        ...
-    @classmethod
-    def getNewCveCount(cls, currentFileId: str=None, previousFileId: str=None) -> Union[any]:
-    """
-    Returns count and list of new CVE IDs between two scan files.
-    @param currentFileId ID of the current scan file.
-    @param previousFileId ID of the previous scan file.
-    @return JSON with { newCount, newCveIds }.
-    """
-        ...
-    @classmethod
-    def validateCustomerScan(cls, rows: Array[any]=None) -> Union[any]:
-    """
-    Validates customer scan rows against the entire vulnerability knowledgebase.
-    Matches by vulnId (CVE ID), then checks container match (image/tag/repository).
-    @param rows Array of normalized JSON rows with vulnId, image, tag, repository, severity.
-    @return JSON with { matched: [...], nonMatched: [...] }.
+    Persist a list of non-matched CVEs for internal triage.
+    @param rows Array of JSON objects with vulnId, image, tag, repository, severity.
+    @return Array of created CustomerScanResult records.
     """
         ...
 

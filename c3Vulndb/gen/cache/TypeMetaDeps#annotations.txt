@@ -1,2 +1,3 @@
 VulnScanFile: ["Ann.Deprecated","Ann.Java","Ann.Action","Ann.Beta","Ann.Js","Ann.Constraint"]
 Vulnerability: ["Ann.Deprecated","Ann.Java","Ann.Action","Ann.Beta","Ann.Js","Ann.Constraint"]
+CustomerScanResult: ["Ann.Deprecated","Ann.Java","Ann.Action","Ann.Beta","Ann.Js","Ann.Constraint"]

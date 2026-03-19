@@ -2797,15 +2797,26 @@ class VulnScanFile():
     """
         ...
     @classmethod
-    def loadJsonData(cls, fileName: str=None, jsonData: Array[any]=None) -> Union[VulnScanFile]:
+    def initScanFile(cls, fileName: str=None, vulnCount: int=None) -> Union[VulnScanFile]:
     """
-    Loads a JSON vulnerability knowledgebase file into the system.
-    Parses the file name for release and scan type, creates the VulnScanFile record,
-    and creates Vulnerability records for each entry. Deduplicates by vulnId within the file.
+    Initialises a VulnScanFile record for a new upload.
+    Parses the file name, creates/updates the scan-file record, and removes any
+    previously persisted vulnerabilities for that file so batches can be loaded fresh.
     
-    @param fileName The original file name, e.g. "new_8.9.1_66_cve_knowledgebase.json".
-    @param jsonData The parsed JSON array of vulnerability entries.
-    @return VulnScanFile The created scan file record.
+    @param fileName  The original file name, e.g. "new_8.9.1_66_cve_knowledgebase.json".
+    @param vulnCount Total number of vulnerability entries in the file.
+    @return VulnScanFile The created/updated scan file record.
+    """
+        ...
+    @classmethod
+    def loadVulnBatch(cls, scanFileId: str=None, entries: Array[any]=None) -> Union[int]:
+    """
+    Loads a batch of vulnerability entries for an already-initialised scan file.
+    Call this repeatedly with chunks of ~200 entries to avoid request-size limits.
+    
+    @param scanFileId The ID returned by initScanFile.
+    @param entries    A chunk of the JSON vulnerability array.
+    @return int       Number of vulnerability records persisted in this batch.
     """
         ...
     @classmethod

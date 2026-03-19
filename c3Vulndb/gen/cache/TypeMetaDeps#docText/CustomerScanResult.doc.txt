@@ -1,0 +1,3 @@
+Stores non-matched (unreported) CVEs from customer security scan reports.
+These are CVEs reported by a customer that do not exist in our vulnerability knowledgebase
+and require internal triage.

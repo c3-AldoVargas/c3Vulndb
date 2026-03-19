@@ -1,11 +1,13 @@
-// TypeScript definitions for the C3 type VulnScanFile
+// TypeScript definitions for the C3 type CustomerScanResult
 
 /**
- * Represents a vulnerability scan file ingested into the system.
+ * Stores non-matched (unreported) CVEs from customer security scan reports.
+ * These are CVEs reported by a customer that do not exist in our vulnerability knowledgebase
+ * and require internal triage.
  *
- * @remarks this represents a value passed to a method that expects an instance of VulnScanFile
+ * @remarks this represents a value passed to a method that expects an instance of CustomerScanResult
  */
-declare interface IVulnScanFile {
+declare interface ICustomerScanResult {
 
   /**
    * A unique identifier that can be manually assigned or generated automatically during object creation. This
@@ -45,44 +47,56 @@ declare interface IVulnScanFile {
   typeWithBindings?: IType | null;
 
   /**
-   * The name of the file, e.g., "new_8.9.1_66_cve_knowledgebase.json".
+   * CVE identifier from the customer report, e.g. "CVE-2025-32462".
    */
-  fileName: string;
+  vulnId: string;
 
   /**
-   * Parsed release identifier, e.g., "8.9.1_66".
+   * Container image URI from the customer report.
    */
-  release?: string | null;
+  image?: string | null;
 
   /**
-   * Parsed scan type, e.g., "new", "existing", "hc".
+   * Image tag/version from the customer report.
    */
-  scanType?: string | null;
+  tag?: string | null;
 
   /**
-   * The date when the file was ingested.
+   * Repository/registry from the customer report.
+   */
+  repository?: string | null;
+
+  /**
+   * External severity as reported by the customer (matches Vulnerability.messageSeverity).
+   */
+  messageSeverity?: string | null;
+
+  /**
+   * When this validation was performed.
    */
   scanDate?: DateTime | Date | string | null;
 
   /**
-   * Total number of vulnerabilities in this file.
+   * Triage status of this unmatched CVE.
    */
-  vulnCount?: number | null;
+  status?: string | null;
 }
 
 /**
- * Represents a vulnerability scan file ingested into the system.
+ * Stores non-matched (unreported) CVEs from customer security scan reports.
+ * These are CVEs reported by a customer that do not exist in our vulnerability knowledgebase
+ * and require internal triage.
  *
- * @remarks this represents a made instance of VulnScanFile
+ * @remarks this represents a made instance of CustomerScanResult
  */
-declare class VulnScanFile extends Obj {
+declare class CustomerScanResult extends Obj {
 
   /**
    * A unique identifier that can be manually assigned or generated automatically during object creation. This
    * identifier cannot be altered after the object has been persisted.
    */
   readonly id: string;
-  withId(id: string): VulnScanFile;
+  withId(id: string): CustomerScanResult;
 
   /**
    * Tracks the version history of an object, which is only active if version history tracking is enabled. This field is
@@ -91,19 +105,19 @@ declare class VulnScanFile extends Obj {
    * @see Ann.Db#versionHistory
    */
   readonly versionEdits?: C3.Array<VersionEdit | null>;
-  withVersionEdits(versionEdits: C3.Array<VersionEdit | null> | Array<IVersionEdit | null>): VulnScanFile;
+  withVersionEdits(versionEdits: C3.Array<VersionEdit | null> | Array<IVersionEdit | null>): CustomerScanResult;
 
   /**
    * Name of the Obj instance
    */
   readonly name?: string | null;
-  withName(name: string | null): VulnScanFile;
+  withName(name: string | null): CustomerScanResult;
 
   /**
    * Various system fields.
    */
   readonly meta?: Meta | null;
-  withMeta(meta: IMeta | null): VulnScanFile;
+  withMeta(meta: IMeta | null): CustomerScanResult;
 
   /**
    * Version number used for optimistic concurrency.  Automatically managed by the system.
@@ -112,43 +126,55 @@ declare class VulnScanFile extends Obj {
    * be done with great caution.
    */
   readonly version?: number | null;
-  withVersion(version: number | null): VulnScanFile;
+  withVersion(version: number | null): CustomerScanResult;
 
   /**
    * Persists concrete type with bindings for generic types where instance has parameter bindings
    */
   readonly typeWithBindings?: Type | null;
-  withTypeWithBindings(typeWithBindings: IType | null): VulnScanFile;
+  withTypeWithBindings(typeWithBindings: IType | null): CustomerScanResult;
 
   /**
-   * The name of the file, e.g., "new_8.9.1_66_cve_knowledgebase.json".
+   * CVE identifier from the customer report, e.g. "CVE-2025-32462".
    */
-  readonly fileName: string;
-  withFileName(fileName: string): VulnScanFile;
+  readonly vulnId: string;
+  withVulnId(vulnId: string): CustomerScanResult;
 
   /**
-   * Parsed release identifier, e.g., "8.9.1_66".
+   * Container image URI from the customer report.
    */
-  readonly release?: string | null;
-  withRelease(release: string | null): VulnScanFile;
+  readonly image?: string | null;
+  withImage(image: string | null): CustomerScanResult;
 
   /**
-   * Parsed scan type, e.g., "new", "existing", "hc".
+   * Image tag/version from the customer report.
    */
-  readonly scanType?: string | null;
-  withScanType(scanType: string | null): VulnScanFile;
+  readonly tag?: string | null;
+  withTag(tag: string | null): CustomerScanResult;
 
   /**
-   * The date when the file was ingested.
+   * Repository/registry from the customer report.
+   */
+  readonly repository?: string | null;
+  withRepository(repository: string | null): CustomerScanResult;
+
+  /**
+   * External severity as reported by the customer (matches Vulnerability.messageSeverity).
+   */
+  readonly messageSeverity?: string | null;
+  withMessageSeverity(messageSeverity: string | null): CustomerScanResult;
+
+  /**
+   * When this validation was performed.
    */
   readonly scanDate?: DateTime | null;
-  withScanDate(scanDate: DateTime | Date | string | null): VulnScanFile;
+  withScanDate(scanDate: DateTime | Date | string | null): CustomerScanResult;
 
   /**
-   * Total number of vulnerabilities in this file.
+   * Triage status of this unmatched CVE.
    */
-  readonly vulnCount?: number | null;
-  withVulnCount(vulnCount: number | null): VulnScanFile;
+  readonly status?: string | null;
+  withStatus(status: string | null): CustomerScanResult;
 
   /**
    * Load the JSON-based representation and reconstruct the corresponding object.
@@ -160,7 +186,7 @@ declare class VulnScanFile extends Obj {
    *
    * @see #toJson
    */
-  static fromJson(json: any | null): VulnScanFile | null;
+  static fromJson(json: any | null): CustomerScanResult | null;
 
   /**
    * Load the JSON-based representation and reconstruct the corresponding object.
@@ -172,7 +198,7 @@ declare class VulnScanFile extends Obj {
    *
    * @see #toJsonString
    */
-  static fromJsonString(json: string | null): VulnScanFile | null;
+  static fromJsonString(json: string | null): CustomerScanResult | null;
 
   /**
    * Load the XML-based representation and reconstruct the corresponding object.
@@ -184,7 +210,7 @@ declare class VulnScanFile extends Obj {
    *
    * @see #toXmlString
    */
-  static fromXmlString(xml: string | null): VulnScanFile | null;
+  static fromXmlString(xml: string | null): CustomerScanResult | null;
 
   /**
    * Load from contentType representation and reconstruct the corresponding object.
@@ -194,7 +220,7 @@ declare class VulnScanFile extends Obj {
    * will be isA the called-on type, but perhaps not identical. In particular, `fromString` works for any actual
    * type and will return an instance of the correct type.
    */
-  static deserialize(contentStr: string | null, contentType: string): VulnScanFile | null;
+  static deserialize(contentStr: string | null, contentType: string): CustomerScanResult | null;
 
   /**
    * Returns new instance with all references to old type, including result of #type, replaced with new type. If new
@@ -202,7 +228,7 @@ declare class VulnScanFile extends Obj {
    *
    * This method is used during live metadata update
    */
-  replaceType(old: Type, new_: Type): VulnScanFile;
+  replaceType(old: Type, new_: Type): CustomerScanResult;
 
   /**
    * Result of this function call is a copy of current instance with all non empty fields replaced based on results of
@@ -213,7 +239,7 @@ declare class VulnScanFile extends Obj {
    * @param convertValue
    *           if true, attempt to convert the value to match the field's type
    */
-  mapFieldValues(mapper: λBiFunction<FieldType, any, any>, convertValue?: boolean): VulnScanFile;
+  mapFieldValues(mapper: λBiFunction<FieldType, any, any>, convertValue?: boolean): CustomerScanResult;
 
   /**
    * Result of this function call is a copy of current instance with all fields replaced based on results of the
@@ -226,7 +252,7 @@ declare class VulnScanFile extends Obj {
    * @param convertValue
    *           if true, attempt to convert the value to match the field's type
    */
-  mapFieldValues(spec: ValueSpec, mapper: λBiFunction<FieldType, any, any>, convertValue?: boolean): VulnScanFile;
+  mapFieldValues(spec: ValueSpec, mapper: λBiFunction<FieldType, any, any>, convertValue?: boolean): CustomerScanResult;
 
   /**
    * Result of this function call is a copy of current instance with all non empty fields replaced based on results of
@@ -237,7 +263,7 @@ declare class VulnScanFile extends Obj {
    * @param convertValue
    *           if true, attempt to convert the value to match the field's type
    */
-  mapFieldValuesAsync(mapper: λBiFunction<FieldType, any, C3.Promise<any> | null>, convertValue?: boolean): C3.Promise<VulnScanFile | null>;
+  mapFieldValuesAsync(mapper: λBiFunction<FieldType, any, C3.Promise<any> | null>, convertValue?: boolean): C3.Promise<CustomerScanResult | null>;
 
   /**
    * Result of this function call is a copy of current instance with all fields replaced based on results of the
@@ -250,7 +276,7 @@ declare class VulnScanFile extends Obj {
    * @param convertValue
    *           if true, attempt to convert the value to match the field's type
    */
-  mapFieldValuesAsync(spec: ValueSpec, mapper: λBiFunction<FieldType | null, any, C3.Promise<any> | null>, convertValue?: boolean): C3.Promise<VulnScanFile | null>;
+  mapFieldValuesAsync(spec: ValueSpec, mapper: λBiFunction<FieldType | null, any, C3.Promise<any> | null>, convertValue?: boolean): C3.Promise<CustomerScanResult | null>;
 
   /**
    * Result of this function call is a copy of current instance with specified field value replaced based on result of
@@ -264,7 +290,7 @@ declare class VulnScanFile extends Obj {
    * @param convertValue
    *           if true, attempt to convert the value to match the field's type
    */
-  mapFieldValue(field?: FieldType | null, includeEmpty?: boolean, mapper: λFunction<any, any>, convertValue?: boolean): VulnScanFile;
+  mapFieldValue(field?: FieldType | null, includeEmpty?: boolean, mapper: λFunction<any, any>, convertValue?: boolean): CustomerScanResult;
 
   /**
    * Executes the specified lambda against each referenced Obj instance and replaces it's value with result of this
@@ -278,7 +304,7 @@ declare class VulnScanFile extends Obj {
    * @param convertValue
    *           if true, attempt to convert the value to match the field's type
    */
-  mapRefs(mapper: λBiFunction<FieldType, Obj, Obj | null>, convertValue?: boolean): VulnScanFile;
+  mapRefs(mapper: λBiFunction<FieldType, Obj, Obj | null>, convertValue?: boolean): CustomerScanResult;
 
   /**
    * Executes the specified lambda against each referenced Obj instance and replaces it's value with result of this
@@ -294,12 +320,12 @@ declare class VulnScanFile extends Obj {
    * @param convertValue
    *           if true, attempt to convert the value to match the field's type
    */
-  mapRefs(includeEmpty: boolean, mapper: λBiFunction<FieldType, Obj, Obj | null>, convertValue?: boolean): VulnScanFile;
+  mapRefs(includeEmpty: boolean, mapper: λBiFunction<FieldType, Obj, Obj | null>, convertValue?: boolean): CustomerScanResult;
 
   /**
    * Populates all missing default values and throws error if any constraint is violated.
    */
-  validateObj(): VulnScanFile;
+  validateObj(): CustomerScanResult;
 
   /**
    * Builds a new Obj instance by adding the provided field in it. The name must correspond to an existing field
@@ -316,7 +342,7 @@ declare class VulnScanFile extends Obj {
    * @see #withoutField
    * @see #defaultField
    */
-  withField(field: string, value: any, doNotConvert?: boolean): VulnScanFile;
+  withField(field: string, value: any, doNotConvert?: boolean): CustomerScanResult;
 
   /**
    * Builds a new Obj instance by adding the provided field in it. The name must correspond to an existing field
@@ -333,7 +359,7 @@ declare class VulnScanFile extends Obj {
    * @see #withoutField
    * @see #defaultField
    */
-  withField(field: FieldType, value: any, doNotConvert?: boolean): VulnScanFile;
+  withField(field: FieldType, value: any, doNotConvert?: boolean): CustomerScanResult;
 
   /**
    * Builds a new Obj instance by adding the provided fields in it. The name must correspond to an existing fields
@@ -345,7 +371,7 @@ declare class VulnScanFile extends Obj {
    *           if true, attempt to convert the values to match the fields' type
    * @return new Obj
    */
-  withFields(fields: C3.Map<string | null, any> | null, doNotConvert?: boolean): VulnScanFile;
+  withFields(fields: C3.Map<string | null, any> | null, doNotConvert?: boolean): CustomerScanResult;
 
   /**
    * Builds a new Obj with the value at the specified path field. If the field is null, the field #isFieldSet to null.
@@ -364,7 +390,7 @@ declare class VulnScanFile extends Obj {
    *           true indicates that any empty reference along the path will not set the value
    * @return new Obj
    */
-  withFieldAtPath(path: string, value: any, doNotConvert?: boolean, doNotCreateIfMissing?: boolean): VulnScanFile;
+  withFieldAtPath(path: string, value: any, doNotConvert?: boolean, doNotCreateIfMissing?: boolean): CustomerScanResult;
 
   /**
    * Builds a new Obj without the specified path field.
@@ -379,7 +405,7 @@ declare class VulnScanFile extends Obj {
    * @see #withFieldAtPath
    * @see #withoutField
    */
-  withoutFieldAtPath(path: string): VulnScanFile;
+  withoutFieldAtPath(path: string): CustomerScanResult;
 
   /**
    * Builds a new Obj, removing the field with the provided name.
@@ -393,7 +419,7 @@ declare class VulnScanFile extends Obj {
    * @see #unsetField
    * @see #removeField
    */
-  withoutField(field: string | null): VulnScanFile;
+  withoutField(field: string | null): CustomerScanResult;
 
   /**
    * Builds a new Obj, removing the field with the provided field type.
@@ -407,7 +433,7 @@ declare class VulnScanFile extends Obj {
    * @see #unsetField
    * @see #removeField
    */
-  withoutField(field: FieldType | null): VulnScanFile;
+  withoutField(field: FieldType | null): CustomerScanResult;
 
   /**
    * Builds a new Obj, removing the fields with the provided names.
@@ -418,7 +444,7 @@ declare class VulnScanFile extends Obj {
    *           names of the fields to remove
    * @return new Obj with removed fields
    */
-  withoutFields(fields: C3.Array<string | null> | null): VulnScanFile;
+  withoutFields(fields: C3.Array<string | null> | null): CustomerScanResult;
 
   /**
    * Builds a new Obj, removing the fields with the provided field types. Be sure to use the FieldType instance for the
@@ -430,12 +456,12 @@ declare class VulnScanFile extends Obj {
    *           field types to remove
    * @return new Obj with removed fields
    */
-  withoutFieldsByType(fields: C3.Array<FieldType | null> | null): VulnScanFile;
+  withoutFieldsByType(fields: C3.Array<FieldType | null> | null): CustomerScanResult;
 
   /**
    * @return a new Obj, removing the field types marked with annotation @config(secret=true) recursively
    */
-  withoutSecretFields(): VulnScanFile;
+  withoutSecretFields(): CustomerScanResult;
 
   /**
    * Builds a new Obj instance by adding the default values (if defined) for all unset fields. This is implemented by
@@ -458,7 +484,7 @@ declare class VulnScanFile extends Obj {
    * @see FieldType#defaultValueConst
    * @see FieldType#defaultValue
    */
-  withDefaults(includeEmptyRefsWithDefaults?: boolean, defaultFields?: C3.Array<string | null>): VulnScanFile;
+  withDefaults(includeEmptyRefsWithDefaults?: boolean, defaultFields?: C3.Array<string | null>): CustomerScanResult;
 
   /**
    * Builds a new Obj, by setting a field on this `Obj` to the field's default value. If the field has no default, this
@@ -471,7 +497,7 @@ declare class VulnScanFile extends Obj {
    * @see #withField
    * @see #unsetField
    */
-  defaultField(field: string): VulnScanFile;
+  defaultField(field: string): CustomerScanResult;
 
   /**
    * Builds a new Obj, by setting a field on this `Obj` to the fields default value. If the field has no default, this
@@ -484,7 +510,7 @@ declare class VulnScanFile extends Obj {
    * @see #withField
    * @see #unsetField
    */
-  defaultField(field: FieldType): VulnScanFile;
+  defaultField(field: FieldType): CustomerScanResult;
 
   /**
    * Unsets a field from this `Obj`, meaning that the field will become not {@link #isFieldSet set}. Note that this
@@ -497,7 +523,7 @@ declare class VulnScanFile extends Obj {
    * @see #withoutField
    * @see #removeField
    */
-  unsetField(field: string): VulnScanFile;
+  unsetField(field: string): CustomerScanResult;
 
   /**
    * Unsets a field from this `Obj`, meaning that the field will become not {@link #isFieldSet set}. Note that this
@@ -510,7 +536,7 @@ declare class VulnScanFile extends Obj {
    * @see #withoutField
    * @see #removeField
    */
-  unsetField(field: FieldType): VulnScanFile;
+  unsetField(field: FieldType): CustomerScanResult;
 
   /**
    * Removes a field from this `Obj`, meaning that the field will become {@link isFieldMissing missing}. Note that this
@@ -523,7 +549,7 @@ declare class VulnScanFile extends Obj {
    * @see #withoutField
    * @see #unsetField
    */
-  removeField(field: string): VulnScanFile;
+  removeField(field: string): CustomerScanResult;
 
   /**
    * Removes a field from this `Obj`, meaning that the field will become {@link isFieldMissing missing}. Note that this
@@ -536,7 +562,7 @@ declare class VulnScanFile extends Obj {
    * @see #withoutField
    * @see #unsetField
    */
-  removeField(field: FieldType): VulnScanFile;
+  removeField(field: FieldType): CustomerScanResult;
 
   /**
    * Merges all the fields of the provided Obj into this instance, producing a new Obj of the same type as this one.
@@ -548,7 +574,7 @@ declare class VulnScanFile extends Obj {
    *           mapping of fields of the object to the respective merge annotations
    * @return the new merged Obj
    */
-  mergeObj(other: Obj | null, fieldPathMergeSpec?: C3.Map<string | null, string | null>): VulnScanFile;
+  mergeObj(other: Obj | null, fieldPathMergeSpec?: C3.Map<string | null, string | null>): CustomerScanResult;
 
   /**
    * Merges all the fields of the provided Obj into this instance, producing a new Obj of the same type as this one.
@@ -560,7 +586,7 @@ declare class VulnScanFile extends Obj {
    *           only fields of otherFieldsFilter type from other are merged into this obj.
    * @return the new merged Obj
    */
-  mergeObj(other: Obj | null, otherFieldsFilter: Type): VulnScanFile;
+  mergeObj(other: Obj | null, otherFieldsFilter: Type): CustomerScanResult;
 
   /**
    * Merge the fields of this Obj with corresponding fields on other Obj using the provided lambda. This means that
@@ -569,16 +595,16 @@ declare class VulnScanFile extends Obj {
    *        if set to true then traverse reference and collection fields and merge corresponding fields or elements with
    *        the same key or index.
    */
-  mergeObj(other: Obj | null, deep?: boolean, merger: λQuadFunction<FieldPath | null, any, FieldPath | null, any, any>): VulnScanFile;
+  mergeObj(other: Obj | null, deep?: boolean, merger: λQuadFunction<FieldPath | null, any, FieldPath | null, any, any>): CustomerScanResult;
 
   /**
    * Merge the fields of this Obj with corresponding fields on other Obj using the provided lambda. This means that
    * fields that exist other Obj and do not exist on this Obj will not be added to final Obj or evaluated. Does not
    * traverse child reference and collection fields.
    */
-  mergeObj(other: Obj | null, merger: λQuadFunction<FieldType | null, any, FieldType | null, any, any>): VulnScanFile;
+  mergeObj(other: Obj | null, merger: λQuadFunction<FieldType | null, any, FieldType | null, any, any>): CustomerScanResult;
 
-  mergeJson(json: any | null): VulnScanFile;
+  mergeJson(json: any | null): CustomerScanResult;
 
   /**
    * Merge the obj references within the current obj
@@ -590,68 +616,68 @@ declare class VulnScanFile extends Obj {
    *        Field paths that need to be filtered from this merge
    * @return Obj with child references merged
    */
-  mergeChildren(deep?: boolean, objKey?: λFunction<Obj | null, any> | null, filter?: λPredicate<string> | null): VulnScanFile;
+  mergeChildren(deep?: boolean, objKey?: λFunction<Obj | null, any> | null, filter?: λPredicate<string> | null): CustomerScanResult;
 
   /**
    * Adds the numeric Obj fields with the other Objs respective fields.
    * If deep is set it will traverse reference and collection fields and sum corresponding numeric fields in
    * references with same name and collection elements at same index or key.
    */
-  sumObj(other: Obj | null, deep?: boolean): VulnScanFile;
+  sumObj(other: Obj | null, deep?: boolean): CustomerScanResult;
 
   /**
    * Build an array of the correct type with a single element which is this instance.
    *
    * @return new array instance with this as only element.
    */
-  singletonArray(): C3.Array<VulnScanFile | null>;
+  singletonArray(): C3.Array<CustomerScanResult | null>;
 
   /**
    * Creates an array of instances of this type.
    */
-  static array(...elements: any[]): C3.Array<VulnScanFile | null>;
+  static array(...elements: any[]): C3.Array<CustomerScanResult | null>;
 
   /**
    * Creates an array of instances of this type.
    */
-  static arrayBuilder(): ArrayBuilder<VulnScanFile | null> | null;
+  static arrayBuilder(): ArrayBuilder<CustomerScanResult | null> | null;
 
   /**
    * Build an set of the correct type with a single element which is this instance.
    *
    * @return new array instance with this as only element.
    */
-  singletonSet(): C3.Set<VulnScanFile | null>;
+  singletonSet(): C3.Set<CustomerScanResult | null>;
 
   /**
    * Creates a set of instances of this type.
    */
-  static setBuilder(): SetBuilder<VulnScanFile | null> | null;
+  static setBuilder(): SetBuilder<CustomerScanResult | null> | null;
 
   /**
    * Create a map of string to elements of this type.
    */
-  static mapBuilder(): MapBuilder<string | null, VulnScanFile | null> | null;
+  static mapBuilder(): MapBuilder<string | null, CustomerScanResult | null> | null;
 
   /**
    * Create a map with the given key type and elements of this type.
    */
-  static mapBuilderOf(keyType: ValueType): MapBuilder<any, VulnScanFile | null> | null;
+  static mapBuilderOf(keyType: ValueType): MapBuilder<any, CustomerScanResult | null> | null;
 
   /**
    * @return new ObjBuilder with initial state set to fields of this instance.
    */
-  toBuilder(): ObjBuilder<VulnScanFile | null>;
+  toBuilder(): ObjBuilder<CustomerScanResult | null>;
 
   /**
    * @return new ObjBuilder of this instance.
    */
-  static builder(): ObjBuilder<VulnScanFile | null>;
+  static builder(): ObjBuilder<CustomerScanResult | null>;
 
   /**
    * Construct instance of this type from provided field values and options
    */
-  static fromFields(fields: C3.Map<FieldType | null, any> | null, spec: Obj.MakeSpec | null): VulnScanFile;
+  static fromFields(fields: C3.Map<FieldType | null, any> | null, spec: Obj.MakeSpec | null): CustomerScanResult;
 
   /**
    * Construct an instance of this type from provided fields
@@ -662,12 +688,12 @@ declare class VulnScanFile extends Obj {
    *
    * @see withDefaults
    */
-  static fromFields(fields: C3.Map<FieldType | null, any | any | null> | null, withDefaults?: boolean): VulnScanFile;
+  static fromFields(fields: C3.Map<FieldType | null, any | any | null> | null, withDefaults?: boolean): CustomerScanResult;
 
   /**
    * Construct instance of this type from provided field values and options
    */
-  static make(fields: C3.Map<string | null, any> | null, spec: Obj.MakeSpec | null): VulnScanFile;
+  static make(fields: C3.Map<string | null, any> | null, spec: Obj.MakeSpec | null): CustomerScanResult;
 
   /**
    * Construct an instance of this type with no non-default field values unless explicitly specified by passing param true
@@ -677,7 +703,7 @@ declare class VulnScanFile extends Obj {
    *
    * @see withDefaults
    */
-  static make(withDefaults?: boolean): VulnScanFile;
+  static make(withDefaults?: boolean): CustomerScanResult;
 
   /**
    * Construct an instance from provided fields
@@ -696,7 +722,7 @@ declare class VulnScanFile extends Obj {
    * @see afterMake
    * @see withDefaults
    */
-  static make(fields: C3.Map<string | null, any | any | null> | null, withDefaults?: boolean): VulnScanFile;
+  static make(fields: C3.Map<string | null, any | any | null> | null, withDefaults?: boolean): CustomerScanResult;
 
   /**
    * Construct an instance of this type from provided fields. Note it is more efficient to use #fromFields and other overloads
@@ -744,7 +770,7 @@ declare class VulnScanFile extends Obj {
    * @see afterMake
    * @see withDefaults
    */
-  static make(fields: any, withDefaults?: boolean): VulnScanFile;
+  static make(fields: any, withDefaults?: boolean): CustomerScanResult;
 
   /**
    * Construct an instance of this type from the string. This is an alias for #fromString, as a specific overload
@@ -752,12 +778,12 @@ declare class VulnScanFile extends Obj {
    *
    * @see #fromString
    */
-  static make(s: string | null): VulnScanFile | null;
+  static make(s: string | null): CustomerScanResult | null;
 
   /**
    * Construct an instance of this type from provided instance of a subtype or a "duck type".
    */
-  static remake(other: Obj | null, failIfExtraOrInvalidFields?: boolean): VulnScanFile;
+  static remake(other: Obj | null, failIfExtraOrInvalidFields?: boolean): CustomerScanResult;
 
   /**
    * Optional override that will be called every time instance of this type is created.
@@ -772,7 +798,7 @@ declare class VulnScanFile extends Obj {
    *
    * Note that it introduces additional overhead so should only be implemented for low volume data.
    */
-  afterMake(): VulnScanFile;
+  afterMake(): CustomerScanResult;
 
   /**
    * Creates an empty inst using `MyType.make()` and caches it. Avoid recreating multiple copies of the spec for
@@ -781,20 +807,20 @@ declare class VulnScanFile extends Obj {
    *
    * @see ValueType#defaultEmptyValue
    */
-  static cachedEmptyInst(): VulnScanFile;
+  static cachedEmptyInst(): CustomerScanResult;
 
   /**
    * Generate a stream of instances of this type. The stream is endless and will call #generateObj each time a new
    * value is read.
    */
-  static generateObjs(spec?: Obj.GenerateSpec | null): Stream<VulnScanFile>;
+  static generateObjs(spec?: Obj.GenerateSpec | null): Stream<CustomerScanResult>;
 
   /**
    * Generate a single instance of this type. The base implementation uses {@link DataGenObj} to generate uniform
    * random (gibberish) values for all fields, but it may be overridden by specific types with custom logic that
    * populates fields in a more realistic way.
    */
-  static generateObj(spec?: Obj.GenerateSpec | null): VulnScanFile;
+  static generateObj(spec?: Obj.GenerateSpec | null): CustomerScanResult;
 
   /**
    * Fetches multiple obj instances based on a specification.  Only objs that the caller is authorized to fetch will be
@@ -805,7 +831,7 @@ declare class VulnScanFile extends Obj {
    *           of 2000 will be applied.
    * @return Requested objs.
    */
-  static fetch(spec?: FetchSpec | null): FetchResult<VulnScanFile | null>;
+  static fetch(spec?: FetchSpec | null): FetchResult<CustomerScanResult | null>;
 
   /**
    * Fetches multiple obj instances based on a filter.  Only objs that the caller is authorized to fetch will be
@@ -815,7 +841,7 @@ declare class VulnScanFile extends Obj {
    *           Specification of filter to apply to data to fetch.  Note that default limit of 2000 will be applied.
    * @return Requested objs.
    */
-  static fetch(filter: Filter): FetchResult<VulnScanFile | null>;
+  static fetch(filter: Filter): FetchResult<CustomerScanResult | null>;
 
   /**
    * Fetches multiple obj instances based on a specification.  Only objs that the caller is authorized to fetch will be
@@ -825,7 +851,7 @@ declare class VulnScanFile extends Obj {
    *           Specification of what data to fetch.  If not specified, no filtering or limit will be applied.
    * @return Requested obj stream.
    */
-  static fetchObjStream(spec?: FetchStreamSpec | null): Stream<VulnScanFile | null>;
+  static fetchObjStream(spec?: FetchStreamSpec | null): Stream<CustomerScanResult | null>;
 
   /**
    * Fetches multiple obj instances based on a specification and returns them as stream of Arrow batches with
@@ -854,7 +880,7 @@ declare class VulnScanFile extends Obj {
    *        type.
    * @return Requested objs where key of map is locale id
    */
-  static fetchMultiLocale(spec?: MultiLocaleFetchSpec | null): C3.Map<string | null, FetchResult<VulnScanFile | null> | null>;
+  static fetchMultiLocale(spec?: MultiLocaleFetchSpec | null): C3.Map<string | null, FetchResult<CustomerScanResult | null> | null>;
 
   /**
    * @return The number of entries that match the specification.
@@ -930,7 +956,7 @@ declare class VulnScanFile extends Obj {
    * @return The requested obj if it exists and null otherwise.  If the 'include' string is specified, then only
    *         those fields will be returned. Otherwise the entire obj will be returned.
    */
-  get(include?: string | null): VulnScanFile | null;
+  get(include?: string | null): CustomerScanResult | null;
 
   /**
    * Gets an instance of a single obj in it's leaf type if the type is extendable.  If the caller is not authorized
@@ -942,7 +968,7 @@ declare class VulnScanFile extends Obj {
    * @return The requested obj if it exists and null otherwise.  If the 'include' string is specified, then only
    *         those fields will be returned. Otherwise the entire obj will be returned.
    */
-  getSpecific(include?: string | null): VulnScanFile | null;
+  getSpecific(include?: string | null): CustomerScanResult | null;
 
   /**
    * Function to check if an obj was already fetched with an include that contains at least the fields of a specified
@@ -955,7 +981,7 @@ declare class VulnScanFile extends Obj {
    *           Spec that controls various aspects of the function's behavior.
    * @return instance of the obj with all requested fields.
    */
-  getMissing(spec: GetMissingSpec): VulnScanFile;
+  getMissing(spec: GetMissingSpec): CustomerScanResult;
 
   /**
    * Gets an obj instance directly from Cassandra, bypassing the normal fetch framework.  It is only valid for C3 types
@@ -970,7 +996,7 @@ declare class VulnScanFile extends Obj {
    * @return The requested obj if it exists and null otherwise.  If the 'include' string is specified, then only
    *         those fields will be returned. Otherwise the entire obj will be returned.
    */
-  getDirect(include?: string | null): VulnScanFile | null;
+  getDirect(include?: string | null): CustomerScanResult | null;
 
   /**
    * Applies a reverse edit (e.g. VersionEdit) to an instance.
@@ -980,7 +1006,7 @@ declare class VulnScanFile extends Obj {
    *
    * @return The instance after applying the reverse edit.
    */
-  applyReverseEdit(versionEdit: VersionEdit): VulnScanFile;
+  applyReverseEdit(versionEdit: VersionEdit): CustomerScanResult;
 
   /**
    * @return key field type.
@@ -1019,7 +1045,7 @@ declare class VulnScanFile extends Obj {
    *
    * @see #toString
    */
-  static fromString(s: string | null): VulnScanFile | null;
+  static fromString(s: string | null): CustomerScanResult | null;
 
   /**
    * Creates an instance of a C3 type. If the operation fails an exception will be thrown.  This will fail if the
@@ -1030,7 +1056,7 @@ declare class VulnScanFile extends Obj {
    * @return The created obj.  If an include spec is specified in the 'spec.include' field, then the returned obj
    *         will have only those fields populated. Otherwise only the id field will be populated.
    */
-  create(spec?: UpsertSpec | null): VulnScanFile | null;
+  create(spec?: UpsertSpec | null): CustomerScanResult | null;
 
   /**
    * Creates multiple instances of a C3 type. If the operation fails and {@link UpsertSpec#dontThrowOnBatchError} is not
@@ -1045,7 +1071,7 @@ declare class VulnScanFile extends Obj {
    *         include spec is specified in the 'spec.include' field, then the returned objs will have only those
    *         fields populated. Otherwise only the id field will be populated.
    */
-  static createBatch(objs: C3.Array<VulnScanFile | null> | null, spec?: UpsertSpec | null): ObjList<VulnScanFile | null> | null;
+  static createBatch(objs: C3.Array<CustomerScanResult | null> | null, spec?: UpsertSpec | null): ObjList<CustomerScanResult | null> | null;
 
   /**
    * Creates multiple instances of a C3 type. If the operation fails and {@link UpsertSpec#dontThrowOnBatchError} is not
@@ -1059,7 +1085,7 @@ declare class VulnScanFile extends Obj {
    * @return  ObjList containing statistics for the operation as well as optionally (depending on the value of
    *          `spec.includeObjsInResults`.
    */
-  static createBatchObjStream(objs: Stream<VulnScanFile | null> | null, spec?: CreateBatchObjStreamSpec | null): ObjList<VulnScanFile | null> | null;
+  static createBatchObjStream(objs: Stream<CustomerScanResult | null> | null, spec?: CreateBatchObjStreamSpec | null): ObjList<CustomerScanResult | null> | null;
 
   /**
    * Updates an instance of a C3 type. If the operation fails an exception will be thrown.  This will fail if the
@@ -1073,7 +1099,7 @@ declare class VulnScanFile extends Obj {
    * @return The updated obj.  If an include spec is specified in the 'spec#returnInclude' field, then the returned
    *         obj will have only those fields populated. Otherwise only the id field will be populated.
    */
-  update(srcObj?: VulnScanFile | null, spec?: UpsertSpec | null): VulnScanFile | null;
+  update(srcObj?: CustomerScanResult | null, spec?: UpsertSpec | null): CustomerScanResult | null;
 
   /**
    * Creates an instance of a C3 type if it doesn't exist or updates it if it does. If the operation fails an
@@ -1088,7 +1114,7 @@ declare class VulnScanFile extends Obj {
    * @return The created or updated obj.  If an include spec is specified in the 'spec#returnInclude' field, then the
    *         returned obj will have only those fields populated. Otherwise only the id field will be populated.
    */
-  upsert(srcObj?: VulnScanFile | null, spec?: UpsertSpec | null): VulnScanFile | null;
+  upsert(srcObj?: CustomerScanResult | null, spec?: UpsertSpec | null): CustomerScanResult | null;
 
   /**
    * Merges an instance of a C3 type if it exists and creates it if it doesn't. Merging an obj instance by default only
@@ -1131,7 +1157,7 @@ declare class VulnScanFile extends Obj {
    *
    * @see Mergespec#csvInclude
    */
-  merge(spec?: MergeSpec | null): VulnScanFile | null;
+  merge(spec?: MergeSpec | null): CustomerScanResult | null;
 
   /**
    * Merges an instance of a C3 type if it exists and creates it if it doesn't.
@@ -1148,7 +1174,7 @@ declare class VulnScanFile extends Obj {
    *           Various parameters that control the operation of function.
    * @return The created or updated obj.
    */
-  merge(mergeInclude: string, spec?: MergeSpec | null): VulnScanFile | null;
+  merge(mergeInclude: string, spec?: MergeSpec | null): CustomerScanResult | null;
 
   /**
    * Updates the 'meta.updated' field to the current time.  If the obj doesn't exist an error will be returned.
@@ -1158,7 +1184,7 @@ declare class VulnScanFile extends Obj {
    *
    * @return The created or updated obj.
    */
-  touch(spec?: TouchSpec | null): VulnScanFile | null;
+  touch(spec?: TouchSpec | null): CustomerScanResult | null;
 
   /**
    * Updates multiple instances of a C3 type. If the operation fails and {@link UpsertSpec#dontThrowOnBatchError} is not
@@ -1177,7 +1203,7 @@ declare class VulnScanFile extends Obj {
    *         spec is specified in 'spec#returnInclude' field, then the returned objs will have only those fields
    *         populated. Otherwise only the id field will be populated.
    */
-  static updateBatch(objs: C3.Array<VulnScanFile | null> | null, srcObjs?: C3.Array<VulnScanFile | null>, spec?: UpsertSpec | null): ObjList<VulnScanFile | null> | null;
+  static updateBatch(objs: C3.Array<CustomerScanResult | null> | null, srcObjs?: C3.Array<CustomerScanResult | null>, spec?: UpsertSpec | null): ObjList<CustomerScanResult | null> | null;
 
   /**
    * Updates multiple instances of a C3 type. If the operation fails due to a version conflict error, the lambda will be
@@ -1193,7 +1219,7 @@ declare class VulnScanFile extends Obj {
    *         spec is specified in 'spec#returnInclude' field, then the returned objs will have only those fields
    *         populated. Otherwise only the id field will be populated.
    */
-  static updateObjs(objs: λSupplier<C3.Array<VulnScanFile | null>>, spec?: UpsertSpec | null): ObjList<VulnScanFile | null> | null;
+  static updateObjs(objs: λSupplier<C3.Array<CustomerScanResult | null>>, spec?: UpsertSpec | null): ObjList<CustomerScanResult | null> | null;
 
   /**
    * Creates instances of a C3 type if they don't already exist and updates them if they do exist. If the operation
@@ -1211,7 +1237,7 @@ declare class VulnScanFile extends Obj {
    *         an include spec is specified in 'spec#returnInclude' field, then the returned objs will have only those
    *         fields populated. Otherwise only the id field will be populated.
    */
-  static upsertBatch(objs: C3.Array<VulnScanFile | null> | null, srcObjs?: C3.Array<VulnScanFile | null>, spec?: UpsertSpec | null): ObjList<VulnScanFile | null> | null;
+  static upsertBatch(objs: C3.Array<CustomerScanResult | null> | null, srcObjs?: C3.Array<CustomerScanResult | null>, spec?: UpsertSpec | null): ObjList<CustomerScanResult | null> | null;
 
   /**
    * Creates instances of a C3 type if they don't already exist and updates them if they do exist. If the operation
@@ -1228,7 +1254,7 @@ declare class VulnScanFile extends Obj {
    *         an include spec is specified in 'spec#returnInclude' field, then the returned objs will have only those
    *         fields populated. Otherwise only the id field will be populated.
    */
-  static upsertObjs(objs: λSupplier<C3.Array<VulnScanFile | null>>, spec?: UpsertSpec | null): ObjList<VulnScanFile | null> | null;
+  static upsertObjs(objs: λSupplier<C3.Array<CustomerScanResult | null>>, spec?: UpsertSpec | null): ObjList<CustomerScanResult | null> | null;
 
   /**
    * Updates the 'meta.updated' field to the current time for a batch of objs.  Attempts to touch non-existing
@@ -1241,7 +1267,7 @@ declare class VulnScanFile extends Obj {
    *         include spec is specified in 'spec#returnInclude' field, then the returned objs will have only those fields
    *         populated. Otherwise only the id field will be populated.
    */
-  static touchBatch(objs: C3.Array<VulnScanFile | null> | null, spec?: TouchSpec | null): ObjList<VulnScanFile | null> | null;
+  static touchBatch(objs: C3.Array<CustomerScanResult | null> | null, spec?: TouchSpec | null): ObjList<CustomerScanResult | null> | null;
 
   /**
    * Merges multiple instances of a C3 type or creates them if they don't exist. If the operation fails and {@link
@@ -1265,7 +1291,7 @@ declare class VulnScanFile extends Obj {
    * @see Mergespec#mergeInclude
    * @see Mergespec#csvInclude
    */
-  static mergeBatch(objs: C3.Array<VulnScanFile | null> | null, spec?: MergeSpec | null): ObjList<VulnScanFile | null> | null;
+  static mergeBatch(objs: C3.Array<CustomerScanResult | null> | null, spec?: MergeSpec | null): ObjList<CustomerScanResult | null> | null;
 
   /**
    * Merges multiple instances of a C3 type or creates them if they don't exist. If the operation fails and {@link
@@ -1292,7 +1318,7 @@ declare class VulnScanFile extends Obj {
    *
    * @see Mergespec#csvInclude
    */
-  static mergeBatch(objs: C3.Array<VulnScanFile | null> | null, mergeInclude: string, spec?: MergeSpec | null): ObjList<VulnScanFile | null> | null;
+  static mergeBatch(objs: C3.Array<CustomerScanResult | null> | null, mergeInclude: string, spec?: MergeSpec | null): ObjList<CustomerScanResult | null> | null;
 
   /**
    * Merges multiple instances of a C3 type or creates them if they don't exist. If the operation fails due to a version
@@ -1321,7 +1347,7 @@ declare class VulnScanFile extends Obj {
    *
    * @see Mergespec#csvInclude
    */
-  static mergeObjs(objs: λSupplier<C3.Array<VulnScanFile | null>>, mergeInclude: string, spec?: MergeSpec | null): ObjList<VulnScanFile | null> | null;
+  static mergeObjs(objs: λSupplier<C3.Array<CustomerScanResult | null>>, mergeInclude: string, spec?: MergeSpec | null): ObjList<CustomerScanResult | null> | null;
 
   /**
    * Merges an obj into multiple instances of a C3 type (e.g. mass merge). Like the {@link merge} and {@link mergeBatch}
@@ -1338,7 +1364,7 @@ declare class VulnScanFile extends Obj {
    *           Various parameters that control the operation of function.
    * @return The number of objs that were merged.
    */
-  static mergeAll(mergeObj: VulnScanFile | null, spec?: MergeAllSpec | null): number | null;
+  static mergeAll(mergeObj: CustomerScanResult | null, spec?: MergeAllSpec | null): number | null;
 
   /**
    * Merges an obj into multiple instances of a C3 type (e.g. mass merge). The objs to perform the operation on can be
@@ -1357,7 +1383,7 @@ declare class VulnScanFile extends Obj {
    *           Various parameters that control the operation of function.
    * @return The number of objs that were merged.
    */
-  static mergeAll(mergeObj: VulnScanFile | null, mergeInclude: string, spec?: MergeAllSpec | null): number | null;
+  static mergeAll(mergeObj: CustomerScanResult | null, mergeInclude: string, spec?: MergeAllSpec | null): number | null;
 
   /**
    * Removes an instance of a C3 type.  If the operation fails an exception will be thrown.
@@ -1391,7 +1417,7 @@ declare class VulnScanFile extends Obj {
    *
    * @see Ann.Db#archive
    */
-  static removeBatch(objs: C3.Array<VulnScanFile | null> | null, spec?: UpsertSpec | null): ObjList<VulnScanFile | null> | null;
+  static removeBatch(objs: C3.Array<CustomerScanResult | null> | null, spec?: UpsertSpec | null): ObjList<CustomerScanResult | null> | null;
 
   /**
    * Removes multiple instances of a C3 type based.
@@ -1424,7 +1450,7 @@ declare class VulnScanFile extends Obj {
    *         specified in the {@link UpsertSpec#include} field, then the returned objs will have only those fields
    *         populated. Otherwise only the id field will be populated.
    */
-  static replace(objs: C3.Array<VulnScanFile | null> | null, spec?: UpsertSpec | null): ObjList<VulnScanFile | null> | null;
+  static replace(objs: C3.Array<CustomerScanResult | null> | null, spec?: UpsertSpec | null): ObjList<CustomerScanResult | null> | null;
 
   /**
    * Recovers archived instances of a C3 type (e.g. those removed via the {@link remove}, {@link removeAll} and
@@ -1434,7 +1460,7 @@ declare class VulnScanFile extends Obj {
    *
    * @see Ann.Db#archive
    */
-  unremove(): VulnScanFile | null;
+  unremove(): CustomerScanResult | null;
 
   /**
    * Optional function to call during upsert/create/merge operations when an instance is being created and no value for
@@ -1455,7 +1481,7 @@ declare class VulnScanFile extends Obj {
    * @return List of modified objs and any errors that were encountered.  If there were no errors the number and order
    *         of objs must match the input.
    */
-  static beforeCreate(objs: C3.Array<VulnScanFile | null> | null): ObjList<VulnScanFile | null>;
+  static beforeCreate(objs: C3.Array<CustomerScanResult | null> | null): ObjList<CustomerScanResult | null>;
 
   /**
    * Callback that is called synchronously during an operation that updates objs before those objs are updated.  The
@@ -1469,7 +1495,7 @@ declare class VulnScanFile extends Obj {
    * @return List of modified objs and any errors that were encountered.  If there were no errors the number and order
    *         of objs must match the input.
    */
-  static beforeUpdate(objs: C3.Array<VulnScanFile | null> | null): ObjList<VulnScanFile | null>;
+  static beforeUpdate(objs: C3.Array<CustomerScanResult | null> | null): ObjList<CustomerScanResult | null>;
 
   /**
    * Callback that is called synchronously during an operation that removes objs before those objs are removed.  The
@@ -1483,7 +1509,7 @@ declare class VulnScanFile extends Obj {
    * @return List of modified objs and any errors that were encountered.  If there were no errors the number and order
    *         of objs must match the input.
    */
-  static beforeRemove(objs: C3.Array<VulnScanFile | null> | null): ObjList<VulnScanFile | null>;
+  static beforeRemove(objs: C3.Array<CustomerScanResult | null> | null): ObjList<CustomerScanResult | null>;
 
   /**
    * Callback that is called synchronously during a request that creates objs after those objs are created.  The
@@ -1495,7 +1521,7 @@ declare class VulnScanFile extends Obj {
    *           `@dependency(include = "field1, field2...")`. Then the objs will have at least those requested fields.
    * @return List of any errors that were encountered.
    */
-  static afterCreate(objs: C3.Array<VulnScanFile | null> | null): C3.Array<ObjError | null>;
+  static afterCreate(objs: C3.Array<CustomerScanResult | null> | null): C3.Array<ObjError | null>;
 
   /**
    * Callback that is called synchronously during a request that updates objs after those objs are updated.  The
@@ -1507,7 +1533,7 @@ declare class VulnScanFile extends Obj {
    *           `@dependency(include = "field1, field2...")`. Then the objs will have at least those requested fields.
    * @return List of any errors that were encountered.
    */
-  static afterUpdate(objs: C3.Array<VulnScanFile | null> | null): C3.Array<ObjError | null>;
+  static afterUpdate(objs: C3.Array<CustomerScanResult | null> | null): C3.Array<ObjError | null>;
 
   /**
    * Callback that is called synchronously during a request that removes objs after those objs are removed.  The
@@ -1520,7 +1546,7 @@ declare class VulnScanFile extends Obj {
    *           Since the objs will already have been removed, they will be in the state they were in prior to removal.
    * @return List of any errors that were encountered.
    */
-  static afterRemove(objs: C3.Array<VulnScanFile | null> | null): C3.Array<ObjError | null>;
+  static afterRemove(objs: C3.Array<CustomerScanResult | null> | null): C3.Array<ObjError | null>;
 
   /**
    * Creates or updates an obj instance directly into Cassandra, bypassing the normal upsert framework.  It is only
@@ -1777,12 +1803,12 @@ declare class VulnScanFile extends Obj {
   /**
    * @return a push stream to import instances of this type.
    */
-  static startImportData(spec?: StartImportDataSpec | null): PushStream<VulnScanFile | null>;
+  static startImportData(spec?: StartImportDataSpec | null): PushStream<CustomerScanResult | null>;
 
   /**
    * @return a push stream to import instances of this type.
    */
-  static startImportDataWithStats(spec?: StartImportDataSpec | null): PushStreamWithStats<VulnScanFile | null>;
+  static startImportDataWithStats(spec?: StartImportDataSpec | null): PushStreamWithStats<CustomerScanResult | null>;
 
   /**
    * Imports instances into a C3 type from a file stored in Cassandra.
@@ -1818,7 +1844,7 @@ declare class VulnScanFile extends Obj {
   /**
    * @return single instance of this Identified type by id.
    */
-  static forId(id: string | null, failIfMissing?: boolean): VulnScanFile | null;
+  static forId(id: string | null, failIfMissing?: boolean): CustomerScanResult | null;
 
   /**
    * Shortcut function to return the value of the {@link meta#referenceInvalid} field for a Persistable reference
@@ -1869,7 +1895,7 @@ declare class VulnScanFile extends Obj {
    *
    * @return The requested obj without any of its identifying fields.
    */
-  withoutIdentity(): VulnScanFile | null;
+  withoutIdentity(): CustomerScanResult | null;
 
   /**
    * Gets the specific C3 type hierarchy for an obj instance.  For a non-extendable type the hierarchy will be the C3
@@ -1889,7 +1915,7 @@ declare class VulnScanFile extends Obj {
    *           Obj instances to get the type hierarchy for.
    * @return The type hierarchies for the requested objs.
    */
-  static typeOfBatch(objs: C3.Array<VulnScanFile | null> | null): C3.Array<EntityType | null>;
+  static typeOfBatch(objs: C3.Array<CustomerScanResult | null> | null): C3.Array<EntityType | null>;
 
   /**
    * @return The root type for a type.  If the type extends an extendable type, the base extendable type is returned.
@@ -1932,7 +1958,7 @@ declare class VulnScanFile extends Obj {
   /**
    * Used only by DatabaseTestEngine
    */
-  static dbEcho(template?: VulnScanFile | null, count?: number | null, sendBack?: boolean): number | null;
+  static dbEcho(template?: CustomerScanResult | null, count?: number | null, sendBack?: boolean): number | null;
 
   /**
    * Checks the validity of references (e.g. broken foreign keys) based on a spec.  For normal reference fields, an
@@ -2018,13 +2044,13 @@ declare class VulnScanFile extends Obj {
    *
    * callbackLogic: function<O: Persistable>(objs: ![O], Function<O, O> callback): !ObjList
    */
-  static callbackLogic(objs: C3.Array<VulnScanFile | null> | null, callback?: λFunction<VulnScanFile | null, VulnScanFile | null> | null): ObjList<VulnScanFile | null>;
+  static callbackLogic(objs: C3.Array<CustomerScanResult | null> | null, callback?: λFunction<CustomerScanResult | null, CustomerScanResult | null> | null): ObjList<CustomerScanResult | null>;
 
   /**
    * Implements a simple logic for Persistable "after" call-backs like after create by looping each input obj and
    * calling a transform for it.
    */
-  static afterCallbackLogic(objs: C3.Array<VulnScanFile | null> | null, callback?: λFunction<VulnScanFile | null, VulnScanFile | null> | null): C3.Array<ObjError | null>;
+  static afterCallbackLogic(objs: C3.Array<CustomerScanResult | null> | null, callback?: λFunction<CustomerScanResult | null, CustomerScanResult | null> | null): C3.Array<ObjError | null>;
 
   /**
    * @return the column names for the id field.  If the type doesn't mixin a {@link CompositeKey} type, then there will
@@ -2053,40 +2079,11 @@ declare class VulnScanFile extends Obj {
   static isSystemField(name: string): boolean;
 
   /**
-   * Returns all scan files ordered by scanDate descending.
-   *
-   * @return [VulnScanFile] - List of VulnScanFile instances sorted by scanDate.
+   * Persist a list of non-matched CVEs for internal triage.
+   * @param rows Array of JSON objects with vulnId, image, tag, repository, severity.
+   * @return Array of created CustomerScanResult records.
    */
-  static getAvailableFiles(): C3.Array<VulnScanFile | null>;
-
-  /**
-   * Initialises a VulnScanFile record for a new upload.
-   * Parses the file name, creates/updates the scan-file record, and removes any
-   * previously persisted vulnerabilities for that file so batches can be loaded fresh.
-   *
-   * @param fileName  The original file name, e.g. "new_8.9.1_66_cve_knowledgebase.json".
-   * @param vulnCount Total number of vulnerability entries in the file.
-   * @return VulnScanFile The created/updated scan file record.
-   */
-  static initScanFile(fileName?: string | null, vulnCount?: number | null): VulnScanFile | null;
-
-  /**
-   * Loads a batch of vulnerability entries for an already-initialised scan file.
-   * Call this repeatedly with chunks of ~200 entries to avoid request-size limits.
-   *
-   * @param scanFileId The ID returned by initScanFile.
-   * @param entries    A chunk of the JSON vulnerability array.
-   * @return int       Number of vulnerability records persisted in this batch.
-   */
-  static loadVulnBatch(scanFileId?: string | null, entries?: C3.Array<any | null>): number | null;
-
-  /**
-   * Deletes a scan file and all its associated vulnerability records.
-   *
-   * @param scanFileId The ID of the scan file to delete.
-   * @return boolean True if the deletion was successful.
-   */
-  static deleteScanFile(scanFileId?: string | null): boolean;
+  static saveUnmatched(rows?: C3.Array<any | null>): C3.Array<CustomerScanResult | null>;
 }
 
 

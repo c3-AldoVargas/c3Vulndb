@@ -61,68 +61,68 @@ function parseFileName(fileName) {
 }
 
 /**
- * Loads a JSON vulnerability knowledgebase file into the system.
- * Parses the file name for release and scan type, creates the VulnScanFile record,
- * and creates Vulnerability records for each entry. Deduplicates by vulnId within the file.
+ * Initialises a VulnScanFile record for a new upload.
+ * Parses the file name, creates/updates the scan-file record, and removes any
+ * previously persisted vulnerabilities for that file so batches can be loaded fresh.
  *
- * @param {string} fileName The original file name.
- * @param {Array} jsonData The parsed JSON array of vulnerability entries.
+ * @param {string} fileName  The original file name.
+ * @param {int}    vulnCount Total number of vulnerability entries.
  * @return {VulnScanFile} The created/updated scan file record.
  */
-function loadJsonData(fileName, jsonData) {
-  // Parse file name for metadata
+function initScanFile(fileName, vulnCount) {
   var parsed = parseFileName(fileName);
 
-  // Create a deterministic ID from the file name (replace special chars)
   var fileId = "scan_" + fileName
     .replace(/\.json$/i, "")
     .replace(/[^a-zA-Z0-9]/g, "_")
     .replace(/_+/g, "_");
 
-  // Check if this scan file already exists — if so, remove old vulns first
+  // Remove old vulnerability records if re-uploading
   var existing = VulnScanFile.exists({ filter: Filter.eq("id", fileId) });
   if (existing) {
-    // Remove old vulnerability records for this file to allow re-upload
     Vulnerability.removeAll(
       { filter: Filter.eq("scanFile", fileId) },
       true
     );
   }
 
-  // Deduplicate entries by Vuln ID within this file
-  var seenVulnIds = {};
-  var uniqueEntries = [];
-  for (var i = 0; i < jsonData.length; i++) {
-    var entry = jsonData[i];
-    var vulnId = entry["Vuln ID"] || entry["vulnId"] || "";
-    if (vulnId && !seenVulnIds[vulnId]) {
-      seenVulnIds[vulnId] = true;
-      uniqueEntries.push(entry);
-    }
-  }
-
-  // Create / update the VulnScanFile record
-  var scanFile = VulnScanFile.make({
+  VulnScanFile.make({
     id: fileId,
     fileName: fileName,
     release: parsed.release,
     scanType: parsed.scanType,
     scanDate: DateTime.now(),
-    vulnCount: uniqueEntries.length
+    vulnCount: vulnCount
   }).upsert();
 
-  // Build Vulnerability objects in batches
-  var batchSize = 500;
+  return VulnScanFile.forId(fileId).get("this");
+}
+
+/**
+ * Loads a batch of vulnerability entries for an already-initialised scan file.
+ * Called repeatedly by the frontend with chunks of ~200 entries.
+ *
+ * @param {string} scanFileId The ID returned by initScanFile.
+ * @param {Array}  entries    A chunk of the JSON vulnerability array.
+ * @return {int} Number of vulnerability records persisted.
+ */
+function loadVulnBatch(scanFileId, entries) {
+  if (!entries || entries.length === 0) {
+    return 0;
+  }
+
   var batch = [];
 
-  for (var j = 0; j < uniqueEntries.length; j++) {
-    var e = uniqueEntries[j];
-    var vid = e["Vuln ID"] || e["vulnId"] || ("unknown_" + j);
+  for (var j = 0; j < entries.length; j++) {
+    var e = entries[j];
+    var vid = e["Vuln ID"] || e["vulnId"] || "";
+    if (!vid) {
+      continue;
+    }
 
-    // Create a deterministic vulnerability ID
-    var vulnRecordId = fileId + "_" + vid.replace(/[^a-zA-Z0-9\-]/g, "_");
+    var vulnRecordId = scanFileId + "_" + vid.replace(/[^a-zA-Z0-9\-]/g, "_");
 
-    var vuln = Vulnerability.make({
+    batch.push(Vulnerability.make({
       id: vulnRecordId,
       vulnId: vid,
       path: e["Path"] || e["path"] || "",
@@ -139,23 +139,15 @@ function loadJsonData(fileName, jsonData) {
       c3AiSeverityRating: e["C3 AI Severity Rating"] || e["c3AiSeverityRating"] || "",
       c3AiResponse: e["C3 AI Response"] || e["c3AiResponse"] || "",
       vulnComments: e["Vuln Comments"] || e["vulnComments"] || "",
-      scanFile: { id: fileId }
-    });
-
-    batch.push(vuln);
-
-    if (batch.length >= batchSize) {
-      Vulnerability.mergeBatch(batch);
-      batch = [];
-    }
+      scanFile: { id: scanFileId }
+    }));
   }
 
-  // Merge remaining batch
   if (batch.length > 0) {
     Vulnerability.mergeBatch(batch);
   }
 
-  return VulnScanFile.forId(fileId).get("this");
+  return batch.length;
 }
 
 /**
