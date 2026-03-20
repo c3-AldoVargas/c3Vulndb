@@ -51,11 +51,14 @@ const _doAxiosPost = async (url: string, payload: any): Promise<any> => {
     return response.data;
   } catch (error: any) {
     if (error.response && error.response.data) {
-      throw error.response.data.message;
+      const data = error.response.data;
+      const msg =
+        data.message || data.error || (typeof data === 'string' ? data : JSON.stringify(data));
+      throw new Error(msg || `Server error ${error.response.status}`);
     } else {
-      throw error.message;
+      throw new Error(error.message || 'Network error');
     }
-  };
+  }
 };
 
 /**

@@ -363,21 +363,16 @@ export default function VulnDashboard() {
         setUploadProgress({ loaded, total });
       });
 
+      const skippedInfo = result.name && result.name.includes('skipped') ? `\n⚠️ ${result.name}` : '';
       setUploadResult({
         success: true,
-        message: `Successfully loaded ${result.vulnCount} vulnerabilities from "${result.fileName}" (Release: ${result.release}).`,
+        message: `Successfully loaded ${result.vulnCount} vulnerabilities from "${result.fileName}" (Release: ${result.release}).${skippedInfo}`,
       });
 
       // Refresh the file list and auto-select the new file
       await loadScanFiles(result.id);
     } catch (err: unknown) {
-      // c3Action throws strings (not Error objects), so handle both cases
-      const msg =
-        typeof err === 'string'
-          ? err
-          : err instanceof Error
-            ? err.message
-            : 'Upload failed. Please try again.';
+      const msg = err instanceof Error ? err.message : String(err || 'Upload failed');
       setUploadResult({ success: false, message: msg });
     } finally {
       setUploading(false);

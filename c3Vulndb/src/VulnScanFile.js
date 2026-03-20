@@ -120,7 +120,10 @@ function loadVulnBatch(scanFileId, entries) {
       continue;
     }
 
-    var vulnRecordId = scanFileId + "_" + vid.replace(/[^a-zA-Z0-9\-]/g, "_");
+    // Use _rowIdx (original file row index) for a globally unique ID per row.
+    // This allows the same CVE to appear multiple times (different containers).
+    var rowIdx = (e["_rowIdx"] !== undefined && e["_rowIdx"] !== null) ? e["_rowIdx"] : j;
+    var vulnRecordId = scanFileId + "_row_" + rowIdx;
 
     batch.push(Vulnerability.make({
       id: vulnRecordId,

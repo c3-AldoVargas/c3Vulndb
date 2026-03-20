@@ -67,44 +67,96 @@ export const fetchNewCveCount = async (
 };
 
 /**
- * Upload a JSON vulnerability knowledgebase file using chunked batches.
- * 1. Creates/updates the VulnScanFile record (small payload).
- * 2. Sends vulnerability entries in batches of BATCH_SIZE to avoid payload limits.
- * 3. Returns the final VulnScanFile record.
+ * Sanitise a single JSON entry by truncating very long string values
+ * and stripping control characters that can break HTTP serialization.
  */
-const UPLOAD_BATCH_SIZE = 200;
+const MAX_FIELD_LENGTH = 4000;
+
+function sanitiseEntry(entry: Record<string, unknown>): Record<string, unknown> {
+  const clean: Record<string, unknown> = {};
+  for (const [key, val] of Object.entries(entry)) {
+    if (typeof val === 'string') {
+      // eslint-disable-next-line no-control-regex
+      const stripped = val.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F]/g, '');
+      clean[key] = stripped.length > MAX_FIELD_LENGTH ? stripped.substring(0, MAX_FIELD_LENGTH) : stripped;
+    } else {
+      clean[key] = val;
+    }
+  }
+  return clean;
+}
+
+/**
+ * Upload a JSON vulnerability knowledgebase file using chunked batches.
+ * 1. Sanitises all entries and tags each with a global row index (_rowIdx).
+ * 2. Creates/updates the VulnScanFile record (small payload).
+ * 3. Sends entries in batches of BATCH_SIZE; retries one-by-one on failure.
+ * 4. Returns the final VulnScanFile record.
+ *
+ * NOTE: No deduplication — each row is a unique CVE + container combination.
+ */
+const UPLOAD_BATCH_SIZE = 50;
 
 export const uploadVulnFile = async (
   fileName: string,
   jsonData: Record<string, unknown>[],
   onProgress?: (loaded: number, total: number) => void
 ): Promise<VulnScanFile> => {
-  // Step 1 — Deduplicate on the frontend before sending
-  const seen = new Set<string>();
-  const unique: Record<string, unknown>[] = [];
-  for (const entry of jsonData) {
+  // Step 1 — Sanitise and tag every entry with its original row index
+  const entries: Record<string, unknown>[] = [];
+  for (let idx = 0; idx < jsonData.length; idx++) {
+    const entry = jsonData[idx];
     const vid = (entry['Vuln ID'] as string) || (entry['vulnId'] as string) || '';
-    if (vid && !seen.has(vid)) {
-      seen.add(vid);
-      unique.push(entry);
-    }
+    if (!vid) continue; // skip rows without a CVE identifier
+    const clean = sanitiseEntry(entry);
+    clean['_rowIdx'] = idx; // backend uses this for unique ID generation
+    entries.push(clean);
+  }
+
+  if (entries.length === 0) {
+    throw new Error(
+      `No entries with a "Vuln ID" or "vulnId" key found. ` +
+        `First entry keys: ${jsonData.length > 0 ? Object.keys(jsonData[0]).join(', ') : '(empty)'}`
+    );
   }
 
   // Step 2 — Initialise the scan file record (lightweight call)
-  const scanFile: VulnScanFile = await c3Action('VulnScanFile', 'initScanFile', [
-    fileName,
-    unique.length,
-  ]);
+  let scanFile: VulnScanFile;
+  try {
+    scanFile = await c3Action('VulnScanFile', 'initScanFile', [fileName, entries.length]);
+  } catch (err) {
+    const detail = err instanceof Error ? err.message : String(err);
+    throw new Error(`initScanFile failed: ${detail}`);
+  }
 
-  // Step 3 — Send entries in batches
+  // Step 3 — Send entries in batches; retry one-by-one on failure
   let loaded = 0;
-  for (let i = 0; i < unique.length; i += UPLOAD_BATCH_SIZE) {
-    const chunk = unique.slice(i, i + UPLOAD_BATCH_SIZE);
-    await c3Action('VulnScanFile', 'loadVulnBatch', [scanFile.id, chunk]);
+  const skippedIds: string[] = [];
+
+  for (let i = 0; i < entries.length; i += UPLOAD_BATCH_SIZE) {
+    const chunk = entries.slice(i, i + UPLOAD_BATCH_SIZE);
+    try {
+      await c3Action('VulnScanFile', 'loadVulnBatch', [scanFile.id, chunk]);
+    } catch {
+      // Batch failed — retry entries one-by-one to isolate the bad ones
+      for (const entry of chunk) {
+        try {
+          await c3Action('VulnScanFile', 'loadVulnBatch', [scanFile.id, [entry]]);
+        } catch {
+          const vid = (entry['Vuln ID'] as string) || (entry['vulnId'] as string) || '(unknown)';
+          skippedIds.push(vid);
+        }
+      }
+    }
     loaded += chunk.length;
     if (onProgress) {
-      onProgress(loaded, unique.length);
+      onProgress(loaded, entries.length);
     }
+  }
+
+  // If some entries were skipped, include that in the result but don't fail
+  if (skippedIds.length > 0) {
+    scanFile.name = `${skippedIds.length} entries skipped: ${skippedIds.join(', ')}`;
   }
 
   return scanFile;
