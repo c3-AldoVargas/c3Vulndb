@@ -34,6 +34,7 @@ import {
   faTrash,
 } from '@fortawesome/free-solid-svg-icons';
 import TopNav from '@/components/TopNav/TopNav';
+import VulnDetailViewer, { type DetailField } from '@/components/VulnDetail/VulnDetailViewer';
 import { useTheme } from '@/hooks/useTheme';
 import type { VulnScanFile, Vulnerability, SeveritySummary, NewCveResult } from '@/Interfaces';
 import {
@@ -162,6 +163,27 @@ const HasFixCell = (props: GridCustomCellProps) => {
   );
 };
 
+/** Build an ordered list of detail fields from a Vulnerability record. */
+function vulnToDetailFields(v: Vulnerability): DetailField[] {
+  return [
+    { label: 'Vuln ID', value: v.vulnId },
+    { label: 'Path', value: v.path },
+    { label: 'Trigger', value: v.trigger },
+    { label: 'Message', value: v.message },
+    { label: 'Repository', value: v.repository },
+    { label: 'Tag', value: v.tag },
+    { label: 'Image', value: v.image },
+    { label: 'Message Severity', value: v.messageSeverity },
+    { label: 'Has Fix', value: v.hasFix },
+    { label: 'External CVSS vectorstring', value: v.externalCvssVector },
+    { label: 'Classification(s)/Label(s)', value: v.classifications },
+    { label: 'C3 AI CVSS4 vectorstring', value: v.c3AiCvss4Vector },
+    { label: 'C3 AI Severity Rating', value: v.c3AiSeverityRating },
+    { label: 'C3 AI Response', value: v.c3AiResponse },
+    { label: 'Vuln Comments', value: v.vulnComments },
+  ];
+}
+
 export default function VulnDashboard() {
   useTheme();
 
@@ -198,6 +220,9 @@ export default function VulnDashboard() {
   // Delete state
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState<boolean>(false);
   const [deleting, setDeleting] = useState<boolean>(false);
+
+  // Detail viewer state
+  const [detailVuln, setDetailVuln] = useState<Vulnerability | null>(null);
 
   /**
    * Load available scan files.
@@ -410,6 +435,24 @@ export default function VulnDashboard() {
     }
   }, [selectedFile]);
 
+  /** Clickable Vuln ID cell — opens the detail viewer. */
+  const VulnIdCell = useCallback(
+    (props: GridCustomCellProps) => {
+      const dataItem = props.dataItem as VulnGridRow;
+      return (
+        <td {...props.tdProps}>
+          <button
+            className="text-accent hover:underline font-medium text-left"
+            onClick={() => setDetailVuln(dataItem)}
+          >
+            {dataItem.vulnId}
+          </button>
+        </td>
+      );
+    },
+    []
+  );
+
   /**
    * Filter vulnerabilities by search text across key fields,
    * then enrich each row with numeric severity ranks for correct sort order.
@@ -620,7 +663,7 @@ export default function VulnDashboard() {
                 style={{ width: '100%' }}
                 resizable={true}
               >
-                <GridColumn field="vulnId" title="Vuln ID" minResizableWidth={140} />
+                <GridColumn field="vulnId" title="Vuln ID" cells={{ data: VulnIdCell }} minResizableWidth={140} />
                 <GridColumn
                   field="c3AiSeverityRank"
                   title="C3 AI Severity"
@@ -770,6 +813,14 @@ export default function VulnDashboard() {
           </DialogActionsBar>
         </Dialog>
       )}
+
+      {/* Vulnerability Detail Viewer */}
+      <VulnDetailViewer
+        isOpen={!!detailVuln}
+        onClose={() => setDetailVuln(null)}
+        title={detailVuln?.vulnId || ''}
+        fields={detailVuln ? vulnToDetailFields(detailVuln) : []}
+      />
 
       {/* Delete Confirmation Dialog */}
       {deleteConfirmOpen && selectedFile && (

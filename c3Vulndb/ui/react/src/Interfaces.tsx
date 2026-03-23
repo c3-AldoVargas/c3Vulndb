@@ -104,6 +104,7 @@ export interface ValidationMatchResult {
   messageSeverity: string;
   containerMatch: boolean;
   releases: string[];
+  kbRecord: Record<string, string>;
 }
 
 export interface ValidationNonMatchResult {
@@ -112,6 +113,7 @@ export interface ValidationNonMatchResult {
   customerImage: string;
   customerTag: string;
   customerRepository: string;
+  kbRecord: Record<string, string>;
 }
 
 export interface ValidationResult {

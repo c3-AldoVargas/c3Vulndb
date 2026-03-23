@@ -19,15 +19,9 @@ import { orderBy, type SortDescriptor } from '@progress/kendo-data-query';
 import { Input, type InputChangeEvent } from '@progress/kendo-react-inputs';
 import { Button } from '@progress/kendo-react-buttons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import {
-  faCircleCheck,
-  faCircleXmark,
-  faDownload,
-  faFloppyDisk,
-  faCheck,
-} from '@fortawesome/free-solid-svg-icons';
+import { faCircleCheck, faCircleXmark, faDownload } from '@fortawesome/free-solid-svg-icons';
 import type { ValidationMatchResult, ValidationNonMatchResult } from '@/Interfaces';
-import { saveUnmatchedResults } from '@/shared/api';
+import VulnDetailViewer, { type DetailField } from '@/components/VulnDetail/VulnDetailViewer';
 
 interface ResultsStepProps {
   matched: ValidationMatchResult[];
@@ -99,8 +93,11 @@ const ReleasesCell = (props: GridCustomCellProps) => {
 
 export default function ResultsStep({ matched, nonMatched }: ResultsStepProps) {
   const [activeTab, setActiveTab] = useState<'matched' | 'nonMatched'>('matched');
-  const [saving, setSaving] = useState(false);
-  const [saved, setSaved] = useState(false);
+
+  // Detail viewer state
+  const [detailOpen, setDetailOpen] = useState(false);
+  const [detailTitle, setDetailTitle] = useState('');
+  const [detailFields, setDetailFields] = useState<DetailField[]>([]);
 
   // Matched grid state
   const [matchedSearch, setMatchedSearch] = useState('');
@@ -155,29 +152,92 @@ export default function ResultsStep({ matched, nonMatched }: ResultsStepProps) {
     return sorted.slice(nonMatchedSkip, nonMatchedSkip + nonMatchedPageSize);
   }, [filteredNonMatched, nonMatchedSort, nonMatchedSkip, nonMatchedPageSize]);
 
-  // --- Actions ---
-  const handleSaveUnmatched = useCallback(async () => {
-    setSaving(true);
-    try {
-      await saveUnmatchedResults(nonMatched);
-      setSaved(true);
-    } finally {
-      setSaving(false);
-    }
-  }, [nonMatched]);
+  /** Open the detail viewer for a matched row. */
+  const openMatchedDetail = useCallback((row: ValidationMatchResult) => {
+    const fields: DetailField[] = Object.entries(row.kbRecord).map(([label, value]) => ({
+      label,
+      value: value || '',
+    }));
+    // Append validation-specific context
+    fields.push({ label: 'Container Match', value: row.containerMatch ? 'Yes' : 'No' });
+    fields.push({ label: 'Releases', value: (row.releases || []).join(', ') || '—' });
+    fields.push({ label: 'Cust. Severity', value: row.customerSeverity || '' });
+    setDetailTitle(row.vulnId);
+    setDetailFields(fields);
+    setDetailOpen(true);
+  }, []);
 
-  const handleExportJson = useCallback(() => {
-    const exportData = { matched, nonMatched };
-    const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+  /** Open the detail viewer for a non-matched row. */
+  const openNonMatchedDetail = useCallback((row: ValidationNonMatchResult) => {
+    const fields: DetailField[] = Object.entries(row.kbRecord).map(([label, value]) => ({
+      label,
+      value: value || '',
+    }));
+    fields.push({ label: 'Cust. Severity', value: row.customerSeverity || '' });
+    setDetailTitle(row.vulnId);
+    setDetailFields(fields);
+    setDetailOpen(true);
+  }, []);
+
+  /** Clickable Vuln ID cell for the matched grid. */
+  const MatchedVulnIdCell = useCallback(
+    (props: GridCustomCellProps) => {
+      const dataItem = props.dataItem as ValidationMatchResult;
+      return (
+        <td {...props.tdProps}>
+          <button
+            className="text-accent hover:underline font-medium text-left"
+            onClick={() => openMatchedDetail(dataItem)}
+          >
+            {dataItem.vulnId}
+          </button>
+        </td>
+      );
+    },
+    [openMatchedDetail]
+  );
+
+  /** Clickable Vuln ID cell for the non-matched grid. */
+  const NonMatchedVulnIdCell = useCallback(
+    (props: GridCustomCellProps) => {
+      const dataItem = props.dataItem as ValidationNonMatchResult;
+      return (
+        <td {...props.tdProps}>
+          <button
+            className="text-accent hover:underline font-medium text-left"
+            onClick={() => openNonMatchedDetail(dataItem)}
+          >
+            {dataItem.vulnId}
+          </button>
+        </td>
+      );
+    },
+    [openNonMatchedDetail]
+  );
+
+  // --- Actions ---
+  /** Download a JSON array as a file. */
+  const downloadJson = useCallback((data: Record<string, string>[], filename: string) => {
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `scan_validation_results_${new Date().toISOString().slice(0, 10)}.json`;
+    a.download = filename;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
-  }, [matched, nonMatched]);
+  }, []);
+
+  const handleExportMatched = useCallback(() => {
+    const kbRecords = matched.map((m) => m.kbRecord);
+    downloadJson(kbRecords, `matched_vulnerabilities_${new Date().toISOString().slice(0, 10)}.json`);
+  }, [matched, downloadJson]);
+
+  const handleExportNonMatched = useCallback(() => {
+    const kbRecords = nonMatched.map((m) => m.kbRecord);
+    downloadJson(kbRecords, `non_matched_vulnerabilities_${new Date().toISOString().slice(0, 10)}.json`);
+  }, [nonMatched, downloadJson]);
 
   return (
     <div>
@@ -199,18 +259,16 @@ export default function ResultsStep({ matched, nonMatched }: ResultsStepProps) {
 
       {/* Action Buttons */}
       <div className="flex items-center gap-2 mb-4">
-        <Button themeColor="primary" fillMode="outline" onClick={handleExportJson}>
-          <FontAwesomeIcon icon={faDownload} className="mr-2" />
-          Export JSON
-        </Button>
+        {matched.length > 0 && (
+          <Button themeColor="primary" fillMode="outline" onClick={handleExportMatched}>
+            <FontAwesomeIcon icon={faDownload} className="mr-2" />
+            Export Matched
+          </Button>
+        )}
         {nonMatched.length > 0 && (
-          <Button
-            themeColor="primary"
-            onClick={handleSaveUnmatched}
-            disabled={saving || saved}
-          >
-            <FontAwesomeIcon icon={saved ? faCheck : faFloppyDisk} className="mr-2" />
-            {saved ? 'Saved for Triage' : saving ? 'Saving...' : 'Save Non-Matched for Triage'}
+          <Button themeColor="primary" fillMode="outline" onClick={handleExportNonMatched}>
+            <FontAwesomeIcon icon={faDownload} className="mr-2" />
+            Export Non-Matched
           </Button>
         )}
       </div>
@@ -273,7 +331,7 @@ export default function ResultsStep({ matched, nonMatched }: ResultsStepProps) {
               style={{ width: '100%' }}
               resizable={true}
             >
-              <GridColumn field="vulnId" title="CVE ID" minResizableWidth={160} />
+              <GridColumn field="vulnId" title="CVE ID" cells={{ data: MatchedVulnIdCell }} minResizableWidth={160} />
               <GridColumn
                 field="customerSeverity"
                 title="Cust. Severity"
@@ -338,7 +396,7 @@ export default function ResultsStep({ matched, nonMatched }: ResultsStepProps) {
               style={{ width: '100%' }}
               resizable={true}
             >
-              <GridColumn field="vulnId" title="CVE ID" minResizableWidth={160} />
+              <GridColumn field="vulnId" title="CVE ID" cells={{ data: NonMatchedVulnIdCell }} minResizableWidth={160} />
               <GridColumn
                 field="customerSeverity"
                 title="Cust. Severity"
@@ -352,6 +410,14 @@ export default function ResultsStep({ matched, nonMatched }: ResultsStepProps) {
           </div>
         </div>
       )}
+
+      {/* Vulnerability Detail Viewer */}
+      <VulnDetailViewer
+        isOpen={detailOpen}
+        onClose={() => setDetailOpen(false)}
+        title={detailTitle}
+        fields={detailFields}
+      />
     </div>
   );
 }
